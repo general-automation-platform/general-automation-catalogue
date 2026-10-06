@@ -502,8 +502,8 @@
   </ul>
   <ul class="links">
     <li><a href="https://github.com/game-automation-platform/game-automation-catalogue/releases" target="_blank" rel="noopener">All releases and release notes →</a></li>
-    <li><a href="https://github.com/game-automation-platform/game-automation-catalogue/blob/master/Official/LineTsumTsum/Beta/CHANGELOG.md" target="_blank" rel="noopener">Tsum Tsum script changelog<span data-script-version></span> →</a></li>
-    <li><a href="https://github.com/game-automation-platform/game-automation-scripts" target="_blank" rel="noopener">The script's source code →</a></li>
+    <li><a href="https://github.com/TsumTsumScripts/tsum-tsum-catalogue/blob/main/LineTsumTsum/Production/CHANGELOG.md" target="_blank" rel="noopener">Tsum Tsum script changelog<span data-script-version></span> →</a></li>
+    <li><a href="https://github.com/TsumTsumScripts/tsum-tsum-script" target="_blank" rel="noopener">The script's source code →</a></li>
   </ul>
 </section>
 
@@ -567,7 +567,7 @@
   <nav aria-label="Project links">
     <ul>
       <li><a href="https://github.com/game-automation-platform/game-automation-catalogue/releases" target="_blank" rel="noopener">Releases</a></li>
-      <li><a href="https://github.com/game-automation-platform/game-automation-scripts" target="_blank" rel="noopener">Script docs</a></li>
+      <li><a href="https://github.com/TsumTsumScripts/tsum-tsum-script" target="_blank" rel="noopener">Script docs</a></li>
       <li><a href="https://discord.gg/NTSAacRCv" target="_blank" rel="noopener">Support on Discord</a></li>
     </ul>
   </nav>
@@ -1069,7 +1069,8 @@
       }).catch(function () {});
   } catch (e) {}
   try {
-    fetch('official.json', { cache: 'no-store' })
+    // Tsum Tsum publishes from its own catalogue now, not this site's official.json.
+    fetch('https://tsumtsumscripts.github.io/tsum-tsum-catalogue/catalogue.json', { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (cat) {
         if (!cat || !cat.Scripts) return;
