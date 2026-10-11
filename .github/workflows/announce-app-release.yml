@@ -1,6 +1,6 @@
 name: Announce app release
 
-# package-release.sh (in game-automation-app) drafts a gap-app-<version>
+# package-release.sh (in general-automation-app) drafts a gap-app-<version>
 # release here. Publishing that draft posts its changelog to Discord.
 on:
   release:
