@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual Check Example</title>
+<meta name="description" content="A GAP script that tests a web page visually: it walks a small shop, compares every screen with an approved baseline and shows what changed. Tested on a device, with screenshots.">
+<meta property="og:title" content="Visual Check Example">
+<meta property="og:description" content="A tested GAP script that compares every screen of a shop with its baseline.">
+<meta property="og:image" content="https://www.gapapp.app/assets/icon-180.png">
+<meta name="theme-color" content="#0b0e12">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/icon-64.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("gap-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<link rel="preload" href="assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/gap.css">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body class="gap">
+<a class="skip btn primary" href="#main">Skip to content</a>
+
+<header class="page top">
+  <a class="brand" href="./">
+    <img src="assets/GAP_mark_mono.png" alt="">
+    <span class="name">General Automation <span>Platform</span></span>
+  </a>
+  <nav aria-label="Pages"><ul class="navlinks">
+    <li><a href="./">Home</a></li>
+    <li><a href="quickstart.html">Quick start</a></li>
+    <li><a href="api.html">API</a></li>
+    <li><a href="playground.html">Playground</a></li>
+    <li><a href="visual-check.html" aria-current="page">Visual check</a></li>
+  </ul></nav>
+  <button type="button" class="theme-btn" data-theme-toggle>Light theme</button>
+</header>
+
+<main id="main" class="page">
+
+<section class="qs-hero" aria-labelledby="vc-title">
+  <p class="fact"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check"/></svg> Example · tested on a device</p>
+  <h1 id="vc-title">Visual check:<br><span>see what changed.</span></h1>
+  <p class="intro">A script that tests a web page with your eyes' job: it walks through every screen of a small shop, compares each one with an approved picture of it, its <b>baseline</b>, and shows exactly what moved. Two builds of the shop let you watch it catch a real change.</p>
+  <div class="dlrow">
+    <a class="btn sm primary" href="https://github.com/general-automation-platform/general-automation-catalogue/tree/master/site/examples/visual-check" target="_blank" rel="noopener">Get the folder on GitHub</a>
+    <a class="btn sm secondary" href="examples/visual-check/web/shop.html?build=a" target="_blank" rel="noopener">Open the shop</a>
+  </div>
+</section>
+
+<div class="qs-layout">
+  <nav class="toc" aria-label="Sections">
+    <p>On this page</p>
+    <ol>
+      <li><a href="#see">See it run</a></li>
+      <li><a href="#files">The folder</a></li>
+      <li><a href="#run">Run it yourself</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#code">The script</a></li>
+      <li><a href="#lessons">What testing taught</a></li>
+      <li><a href="#phone">Watch it from your phone</a></li>
+    </ol>
+  </nav>
+
+  <div>
+
+<section class="qs-step" id="see" aria-labelledby="see-t">
+  <h2 id="see-t"><span class="stepnum">1</span>See it run</h2>
+  <p>The first pass, on build A, saves every screen as its baseline. Each one is cropped just below the magenta strip the shop draws at its top, so the browser's own bar is never compared:</p>
+  <img src="examples/visual-check/screenshots/1-baselines.jpg" alt="The eight baselines side by side: Home, Search results, Product, Cart, Checkout, Receipt, Order history, Settings" loading="lazy" width="1600" height="321" style="display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--card-static-edge);margin:12px 0 16px">
+  <p>The second pass runs build B, which changes Checkout's delivery choice, shipping, total and button colour, and a few words elsewhere. Checkout's baseline, this run's picture, and the difference: grey where nothing changed, in colour with a pink outline where something did.</p>
+  <img src="examples/visual-check/screenshots/3-checkout-compare.jpg" alt="Checkout baseline with Standard delivery and a 38 dollar total, current picture with Express and 47 dollars and a purple button, and the difference with those parts outlined in pink" loading="lazy" width="1080" height="577" style="display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--card-static-edge);margin:12px 0 16px">
+  <div class="file"><div class="term-bar"><span class="name">Log from that run</span></div>
+<pre class="short">[visual-check] opened http://&lt;test server&gt;/shop.html?build=a&amp;t=1792417096663
+[visual-check] build a, threshold 0.02%
+[visual-check] Home: New baseline
+[visual-check] Home did not move on, trying again
+[visual-check] Search results: New baseline
+[visual-check] Product: New baseline
+[visual-check] Cart: New baseline
+[visual-check] Checkout: New baseline
+[visual-check] Receipt: New baseline
+[visual-check] Order history: New baseline
+[visual-check] Settings: New baseline
+[visual-check] pass 1: All 8 matched
+[visual-check] opened http://&lt;test server&gt;/shop.html?build=b&amp;t=1792417150013
+[visual-check] build b, threshold 0.02%
+[visual-check] Home: Match
+[visual-check] Search results: Match
+[visual-check] Product: Match
+[visual-check] Cart did not show: an unfamiliar screen
+[visual-check] Cart: Changed (0.06%, 1 regions)
+[visual-check] Checkout: Changed (21.6%, 5 regions)
+[visual-check] Receipt: Changed (0.09%, 1 regions)
+[visual-check] Order history: Match
+[visual-check] Settings: Changed (0.06%, 1 regions)
+[visual-check] pass 1: 4 screens changed</pre></div>
+  <p class="more">Tested on GAP 4.4 on an Android 13 emulator (1080 × 1920) with Firefox, the page served from a local machine. Build B also opens an "Allow notifications?" dialog the script has never seen: that is the <i>unfamiliar screen</i> in the log, handled in <a href="#phone">step 7</a>.</p>
+</section>
+
+<section class="qs-step" id="files" aria-labelledby="files-t">
+  <h2 id="files-t"><span class="stepnum">2</span>The folder</h2>
+  <div class="file"><div class="term-bar"><span class="name">visual-check/</span></div>
+<pre class="short">visual-check/
+├── index.js        <span class="c-com">the script: the walk and the comparison, then the GAP Companion layer</span>
+├── index.html      <span class="c-com">its settings page: build, allowed change, screens, passes, page address</span>
+├── web/
+│   └── shop.html   <span class="c-com">the shop it walks, builds A and B</span>
+├── screenshots/    <span class="c-com">the run above; not needed on the device</span>
+└── README.md</pre></div>
+  <div class="dlrow">
+    <a class="btn sm secondary" href="examples/visual-check/index.js" download>index.js</a>
+    <a class="btn sm secondary" href="examples/visual-check/index.html" download>index.html</a>
+    <a class="btn sm secondary" href="examples/visual-check/web/shop.html" download>web/shop.html</a>
+    <a class="btn sm secondary" href="examples/visual-check/README.md" download>README.md</a>
+  </div>
+</section>
+
+<section class="qs-step" id="run" aria-labelledby="run-t">
+  <h2 id="run-t"><span class="stepnum">3</span>Run it yourself</h2>
+  <ol class="steps" style="margin-bottom:16px">
+    <li><div>Copy the folder to the device, into GAP's scripts folder:<div class="file"><div class="term-bar"><span class="name">Terminal</span></div><pre class="short">adb shell mkdir -p /sdcard/Download/GeneralAutomationPlatform/scripts
+adb push visual-check /sdcard/Download/GeneralAutomationPlatform/scripts/</pre></div></div></li>
+    <li><div>In GAP, open <b>Library → Local</b> and tap <b>▶</b> on <code>visual-check</code>.</div></li>
+    <li><div><i>Optional:</i> turn on <b>Allow shell commands</b> for it (its card → <b>Settings</b>), so it opens the shop itself. Without it, open <a href="examples/visual-check/web/shop.html?build=a" target="_blank" rel="noopener">the shop</a> in the device's browser first.</div></li>
+    <li><div>Pick <b>Build A</b> and press <b>▶ Play</b>: the first pass takes the baselines.</div></li>
+    <li><div>Pick <b>Build B</b> and play again. Four screens are flagged, and the dialog on Cart is closed with Back.</div></li>
+  </ol>
+  <p>The pictures stay on the device, in its own folder (<code>getDevicePath()</code>), so each device keeps baselines of its own. Delete a screen's <code>baseline.png</code> to take a new one.</p>
+</section>
+
+<section class="qs-step" id="how" aria-labelledby="how-t">
+  <h2 id="how-t"><span class="stepnum">4</span>How it works</h2>
+  <p>Like the <a href="playground.html">playground</a>, the shop gives every control a colour nothing else uses — a cyan search box, an orange disc on whatever moves on, a green slider knob — so the script finds them by colour at any screen size. Getting through takes a tap, typing and a drag.</p>
+  <div class="table-wrap">
+    <table class="trouble">
+      <thead><tr><th scope="col">Step</th><th scope="col">Calls</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Open the shop</th><td><code>execute('am start -a android.intent.action.VIEW -d "…"')</code>, since no named call opens a URL</td></tr>
+        <tr><th scope="row">Find a control</th><td><code>getScreenshot()</code> → <code>inRange()</code> for its colour → <code>findContours()</code></td></tr>
+        <tr><th scope="row">Know where it is</th><td>The magenta strip is n/8 of the width on screen n, so its length says which screen shows</td></tr>
+        <tr><th scope="row">Move on</th><td><code>tap()</code>; <code>typing()</code> into the search box; <code>tapDown()</code>, <code>moveTo()</code>, <code>tapUp()</code> for the slider</td></tr>
+        <tr><th scope="row">Capture</th><td>Two equal screenshots in a row, then <code>cropImage()</code> below the strip</td></tr>
+        <tr><th scope="row">Compare</th><td><code>absDiff()</code> with the baseline → <code>bgrToGray()</code> → <code>threshold()</code> → <code>dilate()</code> → <code>findContours()</code> for the changed regions</td></tr>
+        <tr><th scope="row">Show the difference</th><td>Masks from <code>cloneWithMask()</code>, layered with <code>absDiff()</code>, saved with <code>saveImage()</code></td></tr>
+        <tr><th scope="row">Report</th><td><code>console.log()</code>, <code>showBanner()</code>, and <code>emitEvent()</code> per screen and per pass</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="qs-step" id="code" aria-labelledby="code-t">
+  <h2 id="code-t"><span class="stepnum">5</span>The script</h2>
+  <p>The heart of it, the comparison. The whole script, with its walk and the GAP Companion layer, is <a href="examples/visual-check/index.js">index.js</a>.</p>
+  <div class="file"><div class="term-bar"><span class="name">index.js (excerpt)</span><span class="acts"><button type="button" data-copy>Copy</button><a href="examples/visual-check/index.js" download>Download</a></span></div>
+<pre>// Where two pictures differ: a mask of the changed pixels, grown so nearby
+// changes join into one region. The caller releases it.
+function changedMask(a, b) {
+  var diff = absDiff(a, b);
+  var gray = bgrToGray(diff);
+  releaseImage(diff);
+  threshold(gray, 32, 255, 0);  // a channel moved by more than 32: changed
+  dilate(gray, 15, 15);
+  return gray;
+}
+
+// {pct, regions} between a picture and the baseline at basePath; null without one.
+function compare(current, basePath) {
+  var base = openImage(basePath);
+  if (base === 0) return null;
+  try {
+    var a = getImageSize(current), b = getImageSize(base);
+    if (a.width !== b.width || a.height !== b.height) return { pct: 100, regions: 1, mask: 0 };
+    var mask = changedMask(current, base);
+    var boxes = findContours(mask, 64, 0);
+    var area = 0;
+    boxes.forEach(function (r) { area += r.width * r.height; });
+    var pct = Math.round(area * 10000 / (a.width * a.height)) / 100;
+    return { pct: pct, regions: boxes.length, mask: mask };
+  } finally {
+    releaseImage(base);
+  }
+}</pre></div>
+</section>
+
+<section class="qs-step" id="lessons" aria-labelledby="lessons-t">
+  <h2 id="lessons-t"><span class="stepnum">6</span>What testing taught</h2>
+  <ul class="plain">
+    <li><b>A step can go missing.</b> The first search of a run sometimes didn't register (you can see it in the log). When the previous screen is still showing, the script does that step once more, emptying the search box first so the word isn't typed twice.</li>
+    <li><b>Know which screen you're on.</b> Most screens move on with the same orange disc, so seeing it proved nothing. The strip's length says which screen shows; anything else is unfamiliar.</li>
+    <li><b>A fresh page can hold still half drawn.</b> The first screen of a pass gets a moment longer before it's compared.</li>
+    <li><b>Small changes are small.</b> A changed price is a sliver of the screen, so the allowed change defaults to 0.02 %. Unchanged screens measured exactly zero in every run.</li>
+  </ul>
+</section>
+
+<section class="qs-step" id="phone" aria-labelledby="phone-t">
+  <h2 id="phone-t"><span class="stepnum">7</span>Watch it from your phone</h2>
+  <p>With the script signed and the device linked to <a href="https://gapapp.app" target="_blank" rel="noopener">GAP Companion</a>, the same run also shows up on your phone and the web dashboard. When it meets the dialog it has never seen, it pauses and asks you: your phone shows the screen, you tap <b>Don't allow</b>, press <b>▶‖</b>, then <b>Continue</b>, and the walk goes on. Without an answer in 10 minutes it presses Back itself.</p>
+  <div class="shots">
+    <figure><img src="examples/visual-check/screenshots/2-direction.jpg" alt="The device paused on the Allow notifications dialog, with GAP's floating bar at the top" loading="lazy" width="540" height="960"><figcaption>The screenshot the phone gets when the script asks for direction.</figcaption></figure>
+    <figure><img src="examples/visual-check/screenshots/4-phone-checks.jpg" alt="GAP Companion's Checks tab: totals, and the last pass with a verdict per screen" loading="lazy" width="540" height="960"><figcaption>The Checks tab: totals and every screen's verdict.</figcaption></figure>
+    <figure><img src="examples/visual-check/screenshots/5-phone-detail.jpg" alt="A screen's detail with the difference picture, Reject and Approve as new baseline" loading="lazy" width="540" height="960"><figcaption>A screen's detail: Approve makes this run's picture the baseline.</figcaption></figure>
+  </div>
+  <img src="examples/visual-check/screenshots/6-dashboard.jpg" alt="The GAP Companion web dashboard with the verdict table and Checkout's difference beside it" loading="lazy" width="1200" height="673" style="display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--card-static-edge);margin:12px 0 16px">
+  <p class="more">That layer is the <code>gap*</code> globals at the bottom of <code>index.js</code>. They do nothing without GAP Companion.</p>
+</section>
+
+  </div>
+</div>
+</main>
+
+<footer class="page">
+  <p>General Automation Platform · Android 7.0+</p>
+  <nav aria-label="Project links">
+    <ul>
+      <li><a href="./">Home</a></li>
+      <li><a href="quickstart.html">Quick start</a></li>
+      <li><a href="api.html">API reference</a></li>
+      <li><a href="https://discord.gg/NTSAacRCv" target="_blank" rel="noopener">Support on Discord</a></li>
+    </ul>
+  </nav>
+</footer>
+
+</body>
+</html>
