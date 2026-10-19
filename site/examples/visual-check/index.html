@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual check</title>
+<style>
+  body  { margin: 0; padding: 16px; font: 14px/1.5 sans-serif;
+          background: #0d1218; color: #eff2f6; }
+  h1    { font-size: 16px; margin: 0 0 4px; }
+  p     { color: #878d95; font-size: 12px; margin: 0 0 16px; }
+  label { display: block; margin: 0 0 14px; }
+  input[type=text], input[type=number], select {
+          display: block; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 7px 9px; font: inherit;
+          color: inherit; background: #171d25; border: 1px solid #313942; border-radius: 8px; }
+  .check { display: flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+<h1>Visual check</h1>
+<p>Press ▶ Play. The first pass saves each screen as its baseline; later passes compare with it.
+With shell commands allowed, the script opens the shop itself; otherwise open it in a browser first.</p>
+
+<label>Build
+  <select id="build"><option value="a">Build A (baseline)</option><option value="b">Build B</option></select></label>
+<label>Allowed change, % of a screen
+  <input id="threshold" type="number" min="0.01" max="5" step="0.01" value="0.1"></label>
+<label>Screens to check (1-8) <input id="screens" type="number" min="1" max="8" value="8"></label>
+<label>Passes (0 = until stopped) <input id="passes" type="number" min="0" max="99" value="1"></label>
+<label>Page address
+  <input id="url" type="text" value="https://www.gapapp.app/examples/visual-check/web/shop.html"></label>
+<label class="check"><input id="openPage" type="checkbox" checked>
+  Open the page for me (needs Allow shell commands)</label>
+
+<script>
+  var KEY = 'visual-check-settings';
+  var IDS = ['build', 'threshold', 'screens', 'passes', 'url', 'openPage'];
+
+  function field(id) { return document.getElementById(id); }
+
+  // Put back what was saved last time.
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+    IDS.forEach(function (id) {
+      if (saved[id] === undefined) return;
+      if (field(id).type === 'checkbox') field(id).checked = saved[id]; else field(id).value = saved[id];
+    });
+  } catch (e) {}
+
+  // Read the form, remember it, and hand it to start(). The script keeps the
+  // threshold in hundredths of a percent, as the companion's setting does.
+  function settings() {
+    var raw = {};
+    IDS.forEach(function (id) { raw[id] = field(id).type === 'checkbox' ? field(id).checked : field(id).value; });
+    try { localStorage.setItem(KEY, JSON.stringify(raw)); } catch (e) {}
+    return {
+      build: raw.build,
+      threshold: Math.max(1, Math.round(parseFloat(raw.threshold) * 100) || 10),
+      screens: parseInt(raw.screens, 10) || 8,
+      passes: parseInt(raw.passes, 10) || 0,
+      url: raw.url.trim(),
+      openPage: raw.openPage
+    };
+  }
+
+  // GAP calls this when a button on the floating bar is pressed.
+  function onEvent(type) {
+    if (type === 'OnPlayClick') {
+      JavaScriptInterface.runScript('start(' + JSON.stringify(settings()) + ');');
+      JavaScriptInterface.showMenu();   // closes this panel, so the browser is in view
+    }
+    if (type === 'OnPauseClick' || type === 'OnCloseClick') {
+      JavaScriptInterface.runScript('stop();');
+    }
+  }
+</script>
+</body>
+</html>

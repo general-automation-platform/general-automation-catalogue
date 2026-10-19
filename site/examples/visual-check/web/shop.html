@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Northwind</title>
+<style>
+  /* A small shop for the visual-check example to walk through and compare.
+     Open it as shop.html?build=a (the baseline) or shop.html?build=b (a new
+     build: Checkout changed, small changes on Cart and Settings, and an
+     "Allow notifications?" dialog on Cart the script has never seen).
+
+     The script finds things by colour, so these colours are used for nothing else:
+       marker  #FF00FF  magenta strip at the very top; the script compares only below it
+       input   #00FFFF  cyan border of the search box
+       go      #FF8000  orange disc on the one control that moves to the next screen
+       knob    #00C853  green knob of the "slide to add" slider
+
+     No animations, no clock, no random: the same build draws the same pixels. */
+  :root { --bg: #f6f7fb; --card: #fff; --line: #e3e6ef; --text: #161b2b; --muted: #6b7391; --brand: #2f6fe4; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+               font: 15px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { user-select: none; -webkit-user-select: none; display: flex; flex-direction: column; }
+  #marker { height: 6px; flex: none; background: #FF00FF; }
+
+  .screen { display: none; flex: 1; flex-direction: column; min-height: 0; }
+  .screen.on { display: flex; }
+  header { flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--card);
+           border-bottom: 1px solid var(--line); font-weight: 700; font-size: 17px; }
+  header .back { width: 10px; height: 10px; border-left: 2px solid var(--text); border-bottom: 2px solid var(--text);
+                 transform: rotate(45deg); margin: 0 4px 0 2px; }
+  header .brand { color: var(--brand); }
+  main { flex: 1; min-height: 0; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  h2 { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 4px 2px -2px; }
+  .card { background: var(--card); border-radius: 12px; padding: 10px 12px; box-shadow: 0 1px 2px #1b24400f; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .row .grow { flex: 1; min-width: 0; }
+  small, .muted { color: var(--muted); }
+  small { display: block; font-size: 12px; }
+  .thumb { width: 44px; height: 44px; border-radius: 10px; flex: none; background: #e8dcc6; }
+  .thumb.mug { background: #c9d7ee; }
+  .thumb.cap { background: #d8e8d2; }
+  .price { font-weight: 700; }
+
+  /* The one control per screen that moves on carries an orange disc. */
+  .go { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; flex: none;
+        border-radius: 50%; background: #FF8000; color: #fff; font-weight: 800; font-size: 16px; line-height: 1; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 10px; border: 0; border-radius: 12px;
+         padding: 12px; font: 700 15px system-ui, sans-serif; background: var(--brand); color: #fff; }
+  .btn.ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
+  .bottom { margin-top: auto; }
+
+  /* Home */
+  .search { display: flex; gap: 8px; }
+  #q { flex: 1; min-width: 0; height: 44px; padding: 0 10px; border-radius: 10px; border: 4px solid #00FFFF;
+       background: var(--card); color: var(--text); font: inherit; outline: none; caret-color: transparent; }
+  #searchBtn { height: 44px; padding: 0 12px; }
+  .banner { border-radius: 12px; padding: 14px; background: #e9f0fd; }
+  .banner b { display: block; font-size: 17px; }
+  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .cats .card { text-align: center; padding: 12px 6px; font-size: 13px; font-weight: 600; }
+
+  /* Product */
+  .hero { height: 130px; border-radius: 12px; background: #e8dcc6; }
+  #track { position: relative; height: 48px; border-radius: 24px; background: var(--card); border: 1px solid var(--line); touch-action: none; }
+  #track span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; }
+  #knob { position: absolute; top: 4px; left: 4px; width: 38px; height: 38px; border-radius: 50%; background: #00C853; }
+
+  /* Checkout */
+  .opt { display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: 12px; padding: 10px 12px;
+         border: 2px solid transparent; font-weight: 500; }
+  .opt .grow { flex: 1; }
+  .opt .r { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #b7bdd2; flex: none; }
+  .opt.sel { border-color: var(--brand); }
+  .opt.sel .r { border: 6px solid var(--brand); }
+  .sum { display: grid; gap: 4px; }
+  .sum div { display: flex; justify-content: space-between; color: #4a5272; }
+  .sum .t { color: var(--text); font-weight: 700; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 2px; }
+  body.b #place { background: #8a4fe0; border-radius: 6px; }
+
+  /* Settings */
+  .switch { width: 40px; height: 24px; border-radius: 12px; background: #c9cede; position: relative; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
+  .switch.on { background: var(--brand); }
+  .switch.on::after { left: 19px; }
+  .list .row + .row { border-top: 1px solid var(--line); padding-top: 9px; margin-top: 9px; }
+
+  /* Build B's dialog: the scrim also dims everything under it, so the orange
+     disc can't be found and the script knows it is somewhere unfamiliar. */
+  #dialog { display: none; position: fixed; inset: 0; background: #0b1020a6; align-items: center; justify-content: center; padding: 24px; }
+  #dialog.on { display: flex; }
+  #dialog .box { background: var(--card); border-radius: 16px; padding: 18px; width: 100%; max-width: 320px; }
+  #dialog b { font-size: 17px; }
+  #dialog p { margin: 6px 0 14px; color: #4a5272; }
+  #dialog .row { justify-content: flex-end; gap: 8px; }
+  #dialog button { border: 0; background: none; font: 700 15px system-ui, sans-serif; color: var(--brand); padding: 8px 10px; }
+</style>
+</head>
+<body>
+<div id="marker"></div>
+
+<!-- 1. Home: type into the search box, then Search. -->
+<section class="screen" id="home">
+  <header><span class="brand">Northwind</span></header>
+  <main>
+    <div class="search">
+      <input id="q" type="text" placeholder="Search the shop" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="btn" id="searchBtn">Search <span class="go">›</span></button>
+    </div>
+    <div class="banner"><b>Autumn essentials</b><span class="muted">Bags, mugs and caps for cooler days.</span></div>
+    <h2>Shop by category</h2>
+    <div class="cats"><div class="card">Bags</div><div class="card">Kitchen</div><div class="card">Hats</div></div>
+  </main>
+</section>
+
+<!-- 2. Search results: tap the first result. -->
+<section class="screen" id="results">
+  <header><i class="back"></i>Results for “<span id="term"></span>”</header>
+  <main>
+    <div class="card row" id="firstResult"><span class="thumb"></span>
+      <div class="grow">Canvas tote<small>Natural · Organic cotton</small></div><span class="price">$38.00</span><span class="go">›</span></div>
+    <div class="card row"><span class="thumb mug"></span><div class="grow">Tote-print mug<small>Stoneware · 350 ml</small></div><span class="price">$14.00</span></div>
+    <div class="card row"><span class="thumb cap"></span><div class="grow">Field cap<small>Washed canvas</small></div><span class="price">$22.00</span></div>
+  </main>
+</section>
+
+<!-- 3. Product: drag the green knob to the end to add it to the cart. -->
+<section class="screen" id="product">
+  <header><i class="back"></i>Canvas tote</header>
+  <main>
+    <div class="hero"></div>
+    <div class="row"><div class="grow"><b>Canvas tote</b><small>Natural · Organic cotton · 38 × 42 cm</small></div><span class="price">$38.00</span></div>
+    <p class="muted" style="margin:0">A roomy everyday bag with long handles and an inside pocket.</p>
+    <div id="track" class="bottom"><span>Slide to add to cart →</span><div id="knob"></div></div>
+  </main>
+</section>
+
+<!-- 4. Cart. Build B opens the notifications dialog here, once. -->
+<section class="screen" id="cart">
+  <header><i class="back"></i>Cart</header>
+  <main>
+    <div class="card row"><span class="thumb"></span><div class="grow">Canvas tote<small>Natural · Qty 1</small></div><span class="price">$38.00</span></div>
+    <div class="card sum"><div>Subtotal<span>$38.00</span></div><div>Returns<span id="returns">Free within 30 days</span></div></div>
+    <button class="btn bottom" id="toCheckout">Checkout <span class="go">›</span></button>
+  </main>
+</section>
+
+<!-- 5. Checkout: what build B changes most. -->
+<section class="screen" id="checkout">
+  <header><i class="back"></i>Checkout</header>
+  <main>
+    <div class="card row"><span class="thumb"></span><div class="grow">Canvas tote<small>Natural · Qty 1</small></div><span class="price">$38.00</span></div>
+    <h2>Delivery</h2>
+    <div class="opt" id="std"><span class="r"></span><span class="grow">Standard<small>3–5 days</small></span><b>Free</b></div>
+    <div class="opt" id="exp"><span class="r"></span><span class="grow">Express<small>1–2 days</small></span><b>$9.00</b></div>
+    <div class="card sum"><div>Subtotal<span>$38.00</span></div><div>Shipping<span id="ship"></span></div><div class="t">Total<span id="total"></span></div></div>
+    <button class="btn bottom" id="place">Place order <span class="go">›</span></button>
+  </main>
+</section>
+
+<!-- 6. Receipt: a fixed order number and date, so every run draws the same. -->
+<section class="screen" id="receipt">
+  <header>Order placed</header>
+  <main>
+    <div class="card"><b>Thank you!</b><small>Order NW-10427 · 19 October</small></div>
+    <div class="card row"><span class="thumb"></span><div class="grow">Canvas tote<small>Natural · Qty 1</small></div><span class="price" id="paid"></span></div>
+    <p class="muted" style="margin:0">We'll email you when it ships.</p>
+    <button class="btn ghost bottom" id="toHistory">Order history <span class="go">›</span></button>
+  </main>
+</section>
+
+<!-- 7. Order history. -->
+<section class="screen" id="history">
+  <header><i class="back"></i>Order history</header>
+  <main>
+    <div class="card list">
+      <div class="row"><div class="grow">NW-10427<small>19 October · 1 item</small></div><span class="muted">Processing</span></div>
+      <div class="row"><div class="grow">NW-10391<small>2 October · 2 items</small></div><span class="muted">Delivered</span></div>
+      <div class="row"><div class="grow">NW-10288<small>14 September · 1 item</small></div><span class="muted">Delivered</span></div>
+    </div>
+    <button class="btn ghost bottom" id="toSettings">Settings <span class="go">›</span></button>
+  </main>
+</section>
+
+<!-- 8. Settings: Done goes back Home for the next pass. -->
+<section class="screen" id="settings">
+  <header><i class="back"></i>Settings</header>
+  <main>
+    <div class="card list">
+      <div class="row"><span class="grow">Order updates by email</span><span class="switch on"></span></div>
+      <div class="row"><span class="grow">Offers and news</span><span class="switch"></span></div>
+      <div class="row"><span class="grow">Save payment details</span><span class="switch on"></span></div>
+    </div>
+    <p class="muted" style="margin:0 2px" id="version">Northwind 2.4.0</p>
+    <button class="btn ghost bottom" id="done">Done <span class="go">›</span></button>
+  </main>
+</section>
+
+<div id="dialog" role="dialog" aria-label="Allow notifications?">
+  <div class="box"><b>Allow notifications?</b><p>Northwind would like to send you order updates.</p>
+    <div class="row"><button id="deny">Don't allow</button><button id="allow">Allow</button></div></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var build = /[?&]build=b\b/.test(location.search) ? 'b' : 'a';
+  var askedOnce = false;
+  if (build === 'b') document.body.classList.add('b');
+
+  function $(id) { return document.getElementById(id); }
+  function show(id) {
+    var all = document.querySelectorAll('.screen');
+    for (var i = 0; i < all.length; i++) all[i].classList.toggle('on', all[i].id === id);
+    // Build B asks once, the first time the cart shows. Back closes it, as on
+    // Android, so it gets a history entry.
+    if (id === 'cart' && build === 'b' && !askedOnce) {
+      askedOnce = true;
+      $('dialog').classList.add('on');
+      history.pushState({ dialog: true }, '');
+    }
+  }
+
+  // What the build draws. Build B picks Express by default, and words two
+  // small things differently.
+  var express = build === 'b';
+  $('std').classList.toggle('sel', !express);
+  $('exp').classList.toggle('sel', express);
+  $('ship').textContent = express ? '$9.00' : 'Free';
+  $('total').textContent = $('paid').textContent = express ? '$47.00' : '$38.00';
+  if (build === 'b') {
+    $('returns').textContent = 'Free within 60 days';
+    $('version').textContent = 'Northwind 2.5.0';
+  }
+
+  // Home: search, typing included. The box is emptied and unfocused each time,
+  // so no caret or keyboard is left on the next screen.
+  function search() {
+    var term = $('q').value.trim();
+    if (!term) return;
+    $('term').textContent = term;
+    $('q').value = '';
+    $('q').blur();
+    show('results');
+  }
+  $('searchBtn').addEventListener('click', search);
+  $('q').addEventListener('keydown', function (e) { if (e.key === 'Enter') search(); });
+
+  $('firstResult').addEventListener('click', function () { resetKnob(); show('product'); });
+  $('toCheckout').addEventListener('click', function () { show('checkout'); });
+  $('place').addEventListener('click', function () { show('receipt'); });
+  $('toHistory').addEventListener('click', function () { show('history'); });
+  $('toSettings').addEventListener('click', function () { show('settings'); });
+  $('done').addEventListener('click', function () { show('home'); });
+  function closeDialog() {
+    if (!$('dialog').classList.contains('on')) return;
+    $('dialog').classList.remove('on');
+    if (history.state && history.state.dialog) history.back();
+  }
+  $('deny').addEventListener('click', closeDialog);
+  $('allow').addEventListener('click', closeDialog);
+  window.addEventListener('popstate', function () { $('dialog').classList.remove('on'); });
+
+  // Product: drag the knob to the far end of the track.
+  var track = $('track'), knob = $('knob');
+  var dragging = false, startX = 0, startLeft = 4;
+  function maxLeft() { return track.clientWidth - knob.offsetWidth - 4; }
+  function resetKnob() { knob.style.left = '4px'; }
+  knob.addEventListener('pointerdown', function (e) {
+    dragging = true; startX = e.clientX; startLeft = knob.offsetLeft;
+    knob.setPointerCapture(e.pointerId);
+  });
+  knob.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    knob.style.left = Math.max(4, Math.min(maxLeft(), startLeft + e.clientX - startX)) + 'px';
+  });
+  function release() {
+    if (!dragging) return;
+    dragging = false;
+    if (knob.offsetLeft >= maxLeft() - 4) show('cart');
+    resetKnob();
+  }
+  knob.addEventListener('pointerup', release);
+  knob.addEventListener('pointercancel', release);
+
+  show('home');
+})();
+</script>
+</body>
+</html>
