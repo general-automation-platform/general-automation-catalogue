@@ -59,7 +59,7 @@ outline). Delete a screen's `baseline.png` to take a new one.
 | Find a control | `getScreenshot()`, `inRange()` for its colour, `findContours()` for the patch. The shop gives each control a colour nothing else uses |
 | Move on | `tap()`; `typing()` into the search box; `tapDown()`, `moveTo()`, `tapUp()` for the slider |
 | Capture | Wait until two screenshots in a row are the same, then `cropImage()` below the magenta strip the shop draws at its top, so the browser's own bar is never compared |
-| Compare | `absDiff()` with the baseline, `bgrToGray()`, `threshold()` (a channel moved by more than 32), `dilate()` so nearby changes join, `findContours()` for the regions. A screen matches while the regions cover less than the allowed change (0.1 % by default) |
+| Compare | `absDiff()` with the baseline, `bgrToGray()`, `threshold()` (a channel moved by more than 32), `dilate()` so nearby changes join, `findContours()` for the regions. A screen matches while the regions cover less than the allowed change (0.02 % by default: a changed price is about 0.1 % of a phone screen) |
 | Save | `saveImage()`; the difference picture is three masked layers (`cloneWithMask()`) added together with `absDiff()` |
 | Report | `console.log()`, `showBanner()`, and `emitEvent()`: `check.screen` per screen, `check.results` and `check.run` per pass |
 | An unfamiliar screen | When the control it expects never shows, it presses Back, which closes the shop's dialog |

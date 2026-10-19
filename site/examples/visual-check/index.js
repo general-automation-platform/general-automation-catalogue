@@ -23,7 +23,7 @@ var DEFAULTS = {
   url: DEFAULT_URL,
   openPage: true,  // open the page with a shell command (needs Allow shell commands)
   build: 'a',      // which build of the shop to open: a (the baseline) or b
-  threshold: 10,   // a screen matches while under threshold / 100 % of it changed
+  threshold: 2,    // a screen matches while under threshold / 100 % of it changed; 2 = 0.02 %
   screens: 8,      // how many screens to check, from the first
   passes: 1        // passes over the screens; 0 = until stopped
 };
@@ -37,7 +37,12 @@ function folder() {
   return getDevicePath() + '/visual-check';
 }
 
+var settingsLoaded = false;
+
+// The saved settings over the defaults. Runs before anything reads or changes
+// them, so a change from the phone never saves defaults over the rest.
 function loadSettings() {
+  settingsLoaded = true;
   try {
     var saved = JSON.parse(readFile(folder() + '/settings.json') || '{}');
     for (var k in DEFAULTS) if (saved[k] !== undefined) settings[k] = saved[k];
@@ -152,7 +157,9 @@ function slideToAdd() {
 }
 
 function openPage() {
-  var url = settings.url + (settings.url.indexOf('?') < 0 ? '?' : '&') + 'build=' + settings.build;
+  // A new address each time (t=), so the browser loads a fresh page instead of
+  // switching to a tab it already has open.
+  var url = settings.url + (settings.url.indexOf('?') < 0 ? '?' : '&') + 'build=' + settings.build + '&t=' + Date.now();
   // No named call opens a URL, so this is execute()'s job; "" while shell commands are off.
   var out = execute('am start -a android.intent.action.VIEW -d "' + url + '"');
   if (out === '') log('shell commands are off, so open the page yourself: ' + url);
@@ -331,7 +338,7 @@ function pass(n) {
 
   var changed = results.filter(function (r) { return !r.match; });
   lastResults = { build: settings.build, pass: n, screens: results };
-  emitEvent('check.results', lastResults);
+  saveResults();
   emitEvent('check.run', { round: n, build: settings.build, checked: results.length,
                            matched: results.length - changed.length, review: changed.length });
   emitEvent('round.end', { round: n });
@@ -393,10 +400,19 @@ function reject(key) {
 }
 
 function mark(key, status, match) {
+  if (!lastResults) {
+    try { lastResults = JSON.parse(readFile(folder() + '/results.json') || 'null'); } catch (e) {}
+  }
   if (!lastResults) return;
   lastResults.screens.forEach(function (r) {
     if (r.set === key) { r.status = status; r.match = match; }
   });
+  saveResults();
+}
+
+// Kept in a file too, so Approve and Reject still find them after the script reloads.
+function saveResults() {
+  writeFile(folder() + '/results.json', JSON.stringify(lastResults));
   emitEvent('check.results', lastResults);
 }
 
@@ -557,6 +573,7 @@ function gapCompanion() {
 }
 
 function gapRemoteState() {
+  if (!settingsLoaded) loadSettings();
   return JSON.stringify({
     active: running,
     values: settings,
@@ -569,6 +586,7 @@ function gapRemoteState() {
 function gapRemoteSet(key, value) {
   if (!(key in DEFAULTS)) return JSON.stringify({ ok: false, why: 'unknown-key' });
   if (key === 'build' && value !== 'a' && value !== 'b') return JSON.stringify({ ok: false, why: 'bad-value' });
+  if (!settingsLoaded) loadSettings();
   settings[key] = value;
   saveSettings();
   return JSON.stringify({ ok: true, value: value });
