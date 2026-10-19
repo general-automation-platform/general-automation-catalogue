@@ -11,7 +11,9 @@
      "Allow notifications?" dialog on Cart the script has never seen).
 
      The script finds things by colour, so these colours are used for nothing else:
-       marker  #FF00FF  magenta strip at the very top; the script compares only below it
+       marker  #FF00FF  magenta strip at the very top; the script compares only below it.
+                        On screen n of 8 it is n/8 of the width, which tells the script
+                        which screen it is on
        input   #00FFFF  cyan border of the search box
        go      #FF8000  orange disc on the one control that moves to the next screen
        knob    #00C853  green knob of the "slide to add" slider
@@ -23,6 +25,7 @@
                font: 15px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   body { user-select: none; -webkit-user-select: none; display: flex; flex-direction: column; }
   #marker { height: 6px; flex: none; background: #FF00FF; }
+  #markerRow { flex: none; background: var(--bg); }
 
   .screen { display: none; flex: 1; flex-direction: column; min-height: 0; }
   .screen.on { display: flex; }
@@ -98,7 +101,7 @@
 </style>
 </head>
 <body>
-<div id="marker"></div>
+<div id="markerRow"><div id="marker"></div></div>
 
 <!-- 1. Home: type into the search box, then Search. -->
 <section class="screen" id="home">
@@ -212,7 +215,10 @@
   function $(id) { return document.getElementById(id); }
   function show(id) {
     var all = document.querySelectorAll('.screen');
-    for (var i = 0; i < all.length; i++) all[i].classList.toggle('on', all[i].id === id);
+    for (var i = 0; i < all.length; i++) {
+      all[i].classList.toggle('on', all[i].id === id);
+      if (all[i].id === id) $('marker').style.width = (i + 1) * 100 / all.length + '%';
+    }
     // Build B asks once, the first time the cart shows. Back closes it, as on
     // Android, so it gets a history entry.
     if (id === 'cart' && build === 'b' && !askedOnce) {

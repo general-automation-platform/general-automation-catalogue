@@ -126,9 +126,12 @@ function waitFor(name, timeoutMs) {
 // --- Moving through the shop -------------------------------------------------------
 
 function searchFor() {
-  var box = look('input');
+  var box = waitFor('input', 3000);
   if (!box) return false;
   tap(box.cx, box.cy, 800);      // focus it; the keyboard may slide up
+  // Empty it first: a retry must not type the word twice.
+  keycode('MOVE_END', 50);
+  for (var k = 0; k < 8; k++) keycode('DEL', 20);
   typing('tote', 300);
   var go = waitFor('go', 3000);  // look again: the keyboard may have moved things
   if (!go) return false;
@@ -137,14 +140,14 @@ function searchFor() {
 }
 
 function tapGo() {
-  var go = look('go');
+  var go = waitFor('go', 3000);
   if (!go) return false;
   tap(go.cx, go.cy, 600);
   return true;
 }
 
 function slideToAdd() {
-  var knob = look('knob');
+  var knob = waitFor('knob', 3000);
   if (!knob) return false;
   // The track ends as far from the right edge as it starts from the left.
   var endX = getScreenSize().width - knob.x;
@@ -299,12 +302,45 @@ function check(s, index, of) {
 
 // --- A pass ------------------------------------------------------------------------------
 
-// Arrives on screen s: waits for what proves it, asking for help when it never shows.
-function arrive(s) {
-  if (waitFor(s.look, 5000)) return true;
+// Which shop screen is showing, 1 to 8: the shop draws its marker strip n/8 of
+// the width on screen n. 0 when there is no strip (a dialog dims it, for one).
+function screenNumber() {
+  var screen = getScreenshot();
+  if (screen === 0) return 0;
+  try {
+    var strip = findColour(screen, 'marker', 200)[0];
+    if (!strip) return 0;
+    return Math.round(strip.w * SCREENS.length / getImageSize(screen).width);
+  } finally {
+    releaseImage(screen);
+  }
+}
+
+// Waits until screen number n shows with the control that proves it.
+function arrive(s, n, timeoutMs) {
+  var until = Date.now() + timeoutMs;
+  while (running && Date.now() < until) {
+    if (screenNumber() === n && look(s.look)) return true;
+    sleep(300);
+  }
+  return false;
+}
+
+// Reaches screen i of the walk. A tap or typing can go missing, so when the
+// previous screen is still showing it does that step once more; any other
+// screen is unfamiliar.
+function reach(i) {
+  var s = SCREENS[i];
+  // The first screen gets longer: the browser may still be loading the page.
+  if (arrive(s, i + 1, i === 0 ? 20000 : 5000)) return true;
   if (!running) return false;
+  if (i > 0 && screenNumber() === i) {
+    log(SCREENS[i - 1].name + ' did not move on, trying again');
+    if (SCREENS[i - 1].next() && arrive(s, i + 1, 5000)) return true;
+    if (!running) return false;
+  }
   log(s.name + ' did not show: an unfamiliar screen');
-  return unfamiliar(s) && waitFor(s.look, 3000) !== null;
+  return unfamiliar(s) && arrive(s, i + 1, 5000);
 }
 
 function pass(n) {
@@ -317,11 +353,14 @@ function pass(n) {
   for (var i = 0; i < SCREENS.length && running; i++) {
     var s = SCREENS[i];
     progress.screen = s.name;
-    if (!arrive(s)) {
+    if (!reach(i)) {
       log('could not reach ' + s.name + '; stopping the pass');
       notify({ title: 'Visual check stopped', body: 'Could not reach ' + s.name + '.', category: 'alert', tag: 'run' });
       return null;
     }
+    // A page that just loaded can hold still for a moment with its text not yet
+    // drawn, which looks settled: give the first screen a little longer.
+    if (i === 0) sleep(1500);
     if (i < of) {
       var r = check(s, i + 1, of);
       results.push(r);
