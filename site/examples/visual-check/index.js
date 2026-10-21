@@ -378,11 +378,12 @@ function pass(n) {
   var changed = results.filter(function (r) { return !r.match; });
   lastResults = { build: settings.build, pass: n, screens: results };
   saveResults();
-  emitEvent('check.run', { round: n, build: settings.build, checked: results.length,
-                           matched: results.length - changed.length, review: changed.length });
-  emitEvent('round.end', { round: n });
   var line = changed.length === 0 ? 'All ' + results.length + ' matched'
     : changed.length + (changed.length === 1 ? ' screen changed' : ' screens changed');
+  // check.run last, so the device card's line is the pass's verdict.
+  emitEvent('round.end', { round: n });
+  emitEvent('check.run', { round: n, build: settings.build, checked: results.length,
+                           matched: results.length - changed.length, review: changed.length, summary: line });
   log('pass ' + n + ': ' + line);
   showBanner('Visual check: ' + line, 4000);
   notify({ title: 'Visual check: ' + line, category: 'run', tag: 'run',
@@ -698,9 +699,9 @@ function gapScreens() {
     ],
     events: {
       'check.screen': { title: ['{data.screen} changed: {data.change}', '{data.screen}: {data.status}'],
-                        short: ['{data.index} of {data.of} screens'], kind: 'info' },
+                        short: ['{data.screen}: {data.status}'], kind: 'info' },
       'check.run': { title: ['Pass {data.round}: {data.review} to review of {data.checked}'],
-                     short: ['{data.matched} of {data.checked} matched'], kind: 'result' },
+                     short: ['{data.summary}', '{data.matched} of {data.checked} matched'], kind: 'result' },
       'check.results': { title: ['Verdicts for build {data.build}'], kind: 'info' },
       'round.start': { title: ['Pass {data.round} started (build {data.build})'], kind: 'start' }
     }
