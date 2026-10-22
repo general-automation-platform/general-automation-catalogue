@@ -134,7 +134,7 @@ What testing taught, now built in:
 ## Watch it from your phone
 
 With the script signed and the device linked to
-[GAP Companion](https://gapapp.app), the same run also:
+[GAP Companion](https://www.gapapp.app/companion/), the same run also:
 
 | Needs direction | Checks tab | A screen's detail |
 |:--:|:--:|:--:|

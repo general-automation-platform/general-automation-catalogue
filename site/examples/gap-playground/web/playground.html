@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>GAP Playground</title>
+<style>
+  /* Every control the script looks for has a colour nothing else on the page
+     uses. That is what lets the script find them at any screen size:
+       target  #FF00FF  magenta
+       input   #00FFFF  cyan border
+       send    #0040FF  blue
+       knob    #FF8000  orange
+       done    #00C853  green (the badge each finished task shows)
+     Change the page however you like, but keep those five colours unique. */
+  :root { --bg: #14171f; --card: #1f2430; --line: #343b4b; --text: #eef1f6; --muted: #9aa3b5; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.4 system-ui, sans-serif; }
+  body { padding: 10px 12px 16px; user-select: none; -webkit-user-select: none; }
+  h1 { font-size: 18px; margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+  .task { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 0 0 10px; }
+  .task h2 { display: flex; align-items: center; justify-content: space-between; font-size: 14px; margin: 0 0 8px; }
+  .badge { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); }
+  .task.done .badge { background: #00C853; border-color: #00C853; }
+  .count { color: var(--muted); font-weight: 500; font-size: 12px; margin-left: auto; margin-right: 8px; }
+
+  #arena { position: relative; height: 150px; border-radius: 8px; background: #10131a; overflow: hidden; touch-action: none; }
+  #target { position: absolute; width: 44px; height: 44px; border-radius: 50%; background: #FF00FF; border: 0; padding: 0; }
+
+  .row { display: flex; gap: 8px; }
+  #msg { flex: 1; min-width: 0; height: 40px; padding: 0 10px; border-radius: 8px; border: 4px solid #00FFFF;
+         background: #10131a; color: var(--text); font: inherit; outline: none; }
+  #send { width: 72px; height: 40px; border-radius: 8px; border: 0; background: #0040FF; color: #fff; font: 600 14px system-ui; }
+  #reply { margin: 8px 0 0; min-height: 20px; font-size: 13px; color: var(--muted); }
+
+  #track { position: relative; height: 44px; border-radius: 22px; background: #10131a; border: 1px solid var(--line); touch-action: none; }
+  #track span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; }
+  #knob { position: absolute; top: 3px; left: 3px; width: 36px; height: 36px; border-radius: 50%; background: #FF8000; }
+
+  #all { display: none; text-align: center; font-weight: 700; padding: 10px; border-radius: 12px; background: #0b3d23; color: #b9f6ca; }
+  body.finished #all { display: block; }
+</style>
+</head>
+<body>
+<h1>GAP Playground</h1>
+<p class="sub">A page for a GAP script to drive. Do it by hand, or let the script do it.</p>
+
+<section class="task" id="t1">
+  <h2>1 · Tap the target 5 times <span class="count" id="hits">0 / 5</span><span class="badge"></span></h2>
+  <div id="arena"><button id="target" aria-label="Target"></button></div>
+</section>
+
+<section class="task" id="t2">
+  <h2>2 · Type a message and send it <span class="badge"></span></h2>
+  <div class="row">
+    <input id="msg" type="text" placeholder="Type here" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button id="send">Send</button>
+  </div>
+  <p id="reply"></p>
+</section>
+
+<section class="task" id="t3">
+  <h2>3 · Slide to finish <span class="badge"></span></h2>
+  <div id="track"><span>slide →</span><div id="knob"></div></div>
+</section>
+
+<p id="all">All three done ✓</p>
+
+<script>
+(function () {
+  'use strict';
+  var GOAL = 5, hits = 0;
+  var arena = document.getElementById('arena'), target = document.getElementById('target');
+
+  function done(id) {
+    document.getElementById(id).classList.add('done');
+    if (document.querySelectorAll('.task.done').length === 3) document.body.classList.add('finished');
+  }
+
+  // Task 1: the target jumps somewhere new after every hit.
+  function place() {
+    var w = arena.clientWidth - target.offsetWidth, h = arena.clientHeight - target.offsetHeight;
+    target.style.left = Math.round(Math.random() * w) + 'px';
+    target.style.top = Math.round(Math.random() * h) + 'px';
+  }
+  target.addEventListener('click', function () {
+    if (hits >= GOAL) return;
+    hits++;
+    document.getElementById('hits').textContent = hits + ' / ' + GOAL;
+    if (hits === GOAL) { target.style.display = 'none'; done('t1'); } else place();
+  });
+  place();
+
+  // Task 2: whatever was typed comes back as a reply.
+  document.getElementById('send').addEventListener('click', function () {
+    var input = document.getElementById('msg'), text = input.value.trim();
+    if (!text) return;
+    document.getElementById('reply').textContent = 'Received: “' + text + '”';
+    input.value = '';
+    input.blur();
+    done('t2');
+  });
+
+  // Task 3: drag the knob to the far end of the track.
+  var track = document.getElementById('track'), knob = document.getElementById('knob');
+  var dragging = false, startX = 0, startLeft = 3;
+  function maxLeft() { return track.clientWidth - knob.offsetWidth - 3; }
+  knob.addEventListener('pointerdown', function (e) {
+    if (track.parentNode.classList.contains('done')) return;
+    dragging = true; startX = e.clientX; startLeft = knob.offsetLeft;
+    knob.setPointerCapture(e.pointerId);
+  });
+  knob.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    knob.style.left = Math.max(3, Math.min(maxLeft(), startLeft + e.clientX - startX)) + 'px';
+  });
+  function release() {
+    if (!dragging) return;
+    dragging = false;
+    if (knob.offsetLeft >= maxLeft() - 4) done('t3');
+    else knob.style.left = '3px';
+  }
+  knob.addEventListener('pointerup', release);
+  knob.addEventListener('pointercancel', release);
+})();
+</script>
+</body>
+</html>

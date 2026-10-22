@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GAP Companion — see and steer every GAP device</title>
+<meta name="description" content="GAP Companion is a phone app and web dashboard for GAP: live status, alerts, fleet controls and interactive direction for every Android device you automate. 7 days free, no card needed.">
+<link rel="canonical" href="https://www.gapapp.app/companion/">
+<meta property="og:title" content="GAP Companion — see and steer every GAP device">
+<meta property="og:description" content="GAP Companion is a phone app and web dashboard for GAP: live status, alerts, fleet controls and interactive direction for every Android device you automate. 7 days free, no card needed.">
+<meta property="og:url" content="https://www.gapapp.app/companion/">
+<meta property="og:image" content="https://www.gapapp.app/assets/icon-180.png">
+<meta name="theme-color" content="#0b0e12">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/icon-64.png">
+<link rel="apple-touch-icon" href="../assets/icon-180.png">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("gap-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<link rel="preload" href="../assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/gap.css">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/companion.css">
+<script src="../assets/site.js" defer></script>
+</head>
+<body class="gap">
+<a class="skip btn primary" href="#main">Skip to content</a>
+<header class="page top">
+  <a class="brand" href="../">
+    <img src="../assets/GAP_mark_mono.png" alt="">
+    <span class="name">General Automation <span>Platform</span></span>
+  </a>
+  <nav aria-label="Pages"><ul class="navlinks">
+    <li><a href="../">Home</a></li>
+    <li><a href="../quickstart.html">Quick start</a></li>
+    <li><a href="../api.html">API</a></li>
+    <li><a href="../playground.html">Playground</a></li>
+    <li><a href="./" aria-current="page">Companion</a></li>
+  </ul></nav>
+  <button type="button" class="theme-btn" data-theme-toggle>Light theme</button>
+</header>
+
+<main id="main">
+
+<section class="page hero" aria-labelledby="hero-title">
+  <div>
+    <p class="fact"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#check"/></svg> Early access · 7 days free</p>
+    <h1 id="hero-title">See and steer every<br><span>automated device.</span></h1>
+    <p class="intro"><b>GAP Companion</b> is a phone app and web dashboard for GAP. Check what each device is doing, review results, get alerts the moment something needs you, and change a run without walking to the device.</p>
+    <p class="ctas">
+      <a class="btn primary lg" href="https://companion.gapapp.app/">Start free trial</a>
+      <a class="btn secondary lg" href="pricing.html">See pricing</a>
+    </p>
+    <ul class="facts">
+      <li class="fact">No card needed</li>
+      <li class="fact">Android app and web dashboard</li>
+      <li class="fact">iOS in development</li>
+    </ul>
+    <ul class="c-sub" aria-label="GAP Companion pages"><li><a href="./" aria-current="page">Overview</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="support.html">Support</a></li></ul>
+  </div>
+  <div role="img" aria-label="GAP Companion's device list: one device paused and waiting for your direction, the others running or idle, each with its screens checked so far.">
+    <div class="c-phone"><div class="c-screen"><span class="c-themed"><img class="d" src="shots/list-dark.webp" alt="" width="540" height="932" decoding="async"><img class="l" src="shots/list-light.webp" alt="" width="540" height="932" decoding="async"></span></div></div>
+  </div>
+</section>
+
+<section class="page" id="what" aria-labelledby="what-title">
+  <hgroup>
+    <p class="eyebrow">What it does</p>
+    <h2 id="what-title">Your whole lab, from a couch</h2>
+  </hgroup>
+  <p class="lede">GAP runs your JavaScript automation on each phone, tablet or emulator. GAP Companion is the paid layer on top: a secure cloud service plus an app and dashboard that connect to every GAP device you own.</p>
+  <ul class="grid three">
+    <li class="card"><h3><span class="disc"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#devices"/></svg></span>Live device status</h3><p>Which devices are online, what each script is doing right now, and how long it has been running.</p></li>
+    <li class="card"><h3><span class="disc"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#rounds"/></svg></span>Results and history</h3><p>Totals, per-run results and a recent-events timeline for each device, so you can see what changed and when.</p></li>
+    <li class="card"><h3><span class="disc"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#flag"/></svg></span>Alerts that matter</h3><p>Push notifications when a run finishes, fails or needs a decision. Choose which kinds you want.</p></li>
+    <li class="card"><h3><span class="disc"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#pause"/></svg></span>Remote controls</h3><p>Start, pause, resume or stop a run, or stop after the current round, on one device or many at once.</p></li>
+    <li class="card"><h3><span class="disc"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#sliders"/></svg></span>Settings and presets</h3><p>Edit a script's settings from your phone, save them as presets and apply them to many devices at once.</p></li>
+    <li class="card"><h3><span class="disc"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#search"/></svg></span>Screenshots on request</h3><p>Ask a device for what its screen shows right now. Screenshots are deleted after seven days.</p></li>
+  </ul>
+</section>
+
+<section class="page band" id="how" aria-labelledby="how-title">
+  <hgroup>
+    <p class="eyebrow">How it works</p>
+    <h2 id="how-title">Three steps, no servers of your own</h2>
+  </hgroup>
+  <ul class="grid three">
+    <li class="card"><h3><span class="disc"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#download"/></svg></span>Run scripts with GAP</h3><p>Install GAP, the free Android automation app, on your devices: the <a href="../#guide">starter tool</a> puts it on each one. Run your scripts as usual.</p></li>
+    <li class="card"><h3><span class="disc"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#qr"/></svg></span>Link your devices</h3><p>Sign in to GAP Companion. In GAP, open <b>Settings → GAP Companion → Link to GAP Companion</b> and scan the code it shows. Once per device.</p></li>
+    <li class="card"><h3><span class="disc"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#account"/></svg></span>Watch and steer</h3><p>Open the Android app or the web dashboard to see every device, review results, get alerts and send commands.</p></li>
+  </ul>
+</section>
+
+<section class="page" id="uses" aria-labelledby="uses-title">
+  <hgroup>
+    <p class="eyebrow">Use case</p>
+    <h2 id="uses-title">Visual regression testing on real devices</h2>
+  </hgroup>
+  <p class="lede">A GAP script walks through your app or website on real hardware, captures each screen and compares it with an approved baseline. GAP Companion is where you see the verdicts: which devices passed, which screens changed, and what exactly moved.</p>
+  <div class="c-showcase" role="img" aria-label="The GAP Companion web dashboard: a device's verdict for each screen of a shop, and the Checkout screen's difference from its baseline with the changed parts outlined, beside Reject and Approve as new baseline.">
+    <div class="c-browser"><div class="c-chrome"><div class="c-lights"><i></i><i></i><i></i></div><div class="c-url">companion.gapapp.app</div><div class="sp"></div></div><div class="c-view tall"><span class="c-themed"><img class="d" src="shots/showcase-dark.webp" alt="" width="1440" height="1000" loading="lazy" decoding="async"><img class="l" src="shots/showcase-light.webp" alt="" width="1440" height="1000" loading="lazy" decoding="async"></span></div></div>
+  </div>
+  <p class="c-caption">The real dashboard. The devices run the <a href="../visual-check.html">visual-check example</a> on a sample shop; the comparison itself is done by that GAP script.</p>
+  <ul class="grid" style="margin-top:28px">
+    <li class="card"><h3>Release checks</h3><p>Run the same walkthrough on every build and catch layout shifts, clipped text and colour changes before users do.</p></li>
+    <li class="card"><h3>Device and OS coverage</h3><p>Compare how one screen renders across screen sizes, densities and Android versions in your own device lab.</p></li>
+    <li class="card"><h3>Overnight runs</h3><p>Start a long suite in the evening. In the morning, a passed or flagged status is waiting on your phone.</p></li>
+    <li class="card"><h3>Other repetitive tasks</h3><p>Smoke tests, stress tests and routine device chores. Anything a GAP script can do, Companion can watch.</p></li>
+  </ul>
+</section>
+
+<section class="page band" id="fleet" aria-labelledby="fleet-title">
+  <hgroup>
+    <p class="eyebrow">Fleet control</p>
+    <h2 id="fleet-title">Start and stop a whole lab from one screen</h2>
+  </hgroup>
+  <p class="lede">Select a few devices or all of them, then start, pause or stop together. Devices finish their round cleanly before stopping, and anything that needs you is flagged on the spot.</p>
+  <div class="c-showcase" role="img" aria-label="The dashboard's device table: eight devices, some running and some idle; all are selected, the bulk menu opens, Start goes out, and every device is running.">
+    <div class="c-browser"><div class="c-chrome"><div class="c-lights"><i></i><i></i><i></i></div><div class="c-url">companion.gapapp.app</div><div class="sp"></div></div><div class="c-view wide"><div class="c-seq n4" style="--n:4">
+<span class="c-themed fr" style="--i:0"><img class="d" src="shots/fleet-1-dark.webp" alt="" width="1440" height="900" loading="lazy" decoding="async"><img class="l" src="shots/fleet-1-light.webp" alt="" width="1440" height="900" loading="lazy" decoding="async"></span>
+<span class="c-themed fr" style="--i:1"><img class="d" src="shots/fleet-2-dark.webp" alt="" width="1440" height="900" loading="lazy" decoding="async"><img class="l" src="shots/fleet-2-light.webp" alt="" width="1440" height="900" loading="lazy" decoding="async"></span>
+<span class="c-themed fr" style="--i:2"><img class="d" src="shots/fleet-3-dark.webp" alt="" width="1440" height="900" loading="lazy" decoding="async"><img class="l" src="shots/fleet-3-light.webp" alt="" width="1440" height="900" loading="lazy" decoding="async"></span>
+<span class="c-themed fr still" style="--i:3"><img class="d" src="shots/fleet-4-dark.webp" alt="" width="1440" height="900" loading="lazy" decoding="async"><img class="l" src="shots/fleet-4-light.webp" alt="" width="1440" height="900" loading="lazy" decoding="async"></span>
+    </div></div></div>
+  </div>
+  <p class="c-caption">The dashboard's bulk controls, in four real frames. Hover to pause.</p>
+</section>
+
+<section class="page" id="direction" aria-labelledby="direction-title">
+  <hgroup>
+    <p class="eyebrow">Interactive direction</p>
+    <h2 id="direction-title">When a script gets stuck, fix it from your phone</h2>
+  </hgroup>
+  <div class="c-split">
+    <div>
+      <div class="c-phone" role="img" aria-label="The phone app: a device waits for your direction with a screenshot of an unexpected dialog; you mark a tap on Don't allow, press play, see the next screenshot without the dialog, and press Continue."><div class="c-screen"><div class="c-seq n6" style="--n:6;--T:15s">
+<span class="c-themed fr" style="--i:0"><img class="d" src="shots/list-dark.webp" alt="" width="540" height="932" loading="lazy" decoding="async"><img class="l" src="shots/list-light.webp" alt="" width="540" height="932" loading="lazy" decoding="async"></span>
+<span class="c-themed fr" style="--i:1"><img class="d" src="shots/direct-1-dark.webp" alt="" width="540" height="932" loading="lazy" decoding="async"><img class="l" src="shots/direct-1-light.webp" alt="" width="540" height="932" loading="lazy" decoding="async"></span>
+<span class="c-themed fr still" style="--i:2"><img class="d" src="shots/direct-2-dark.webp" alt="" width="540" height="932" loading="lazy" decoding="async"><img class="l" src="shots/direct-2-light.webp" alt="" width="540" height="932" loading="lazy" decoding="async"></span>
+<span class="c-themed fr" style="--i:3"><img class="d" src="shots/direct-3-dark.webp" alt="" width="540" height="932" loading="lazy" decoding="async"><img class="l" src="shots/direct-3-light.webp" alt="" width="540" height="932" loading="lazy" decoding="async"></span>
+<span class="c-themed fr" style="--i:4"><img class="d" src="shots/direct-4-dark.webp" alt="" width="540" height="932" loading="lazy" decoding="async"><img class="l" src="shots/direct-4-light.webp" alt="" width="540" height="932" loading="lazy" decoding="async"></span>
+<span class="c-themed fr" style="--i:5"><img class="d" src="shots/direct-6-dark.webp" alt="" width="540" height="932" loading="lazy" decoding="async"><img class="l" src="shots/direct-6-light.webp" alt="" width="540" height="932" loading="lazy" decoding="async"></span>
+      </div></div></div>
+      <p class="c-caption">The phone app, in six real frames. Hover to pause.</p>
+    </div>
+    <div>
+      <p class="lede" style="margin:0">A surprise permission dialog, a promo banner, a screen nobody planned for. Instead of failing the whole run, a script that supports it can pause and ask you what to do.</p>
+      <ol class="c-steps">
+        <li><b>The script pauses and you get an alert</b><span>Only on screens it does not recognise, so a run is not lost to one surprise.</span></li>
+        <li><b>You see what the device sees</b><span>A fresh screenshot opens in the app. Mark one tap or one drag where it should go.</span></li>
+        <li><b>Press play, check, repeat</b><span>The device makes your tap itself and sends a new screenshot, so you can confirm it worked or try again.</span></li>
+        <li><b>Continue hands control back</b><span>The script resumes from where it paused. If nobody answers within ten minutes, it falls back to its normal handling.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="faq" aria-labelledby="faq-title">
+  <h2 id="faq-title">Questions</h2>
+  <div class="c-faq">
+    <details><summary>Do I need GAP too?</summary><p>Yes. GAP is the free Android app that runs your scripts. GAP Companion connects to it and does not automate anything on its own. <a href="../#guide">Set up GAP</a>.</p></details>
+    <details><summary>What can see my data?</summary><p>Your devices report status, events and totals to your own account. We do not sell data, show ads or use analytics trackers. Read the <a href="privacy.html">Privacy Policy</a>.</p></details>
+    <details><summary>Which platforms are supported?</summary><p>An Android app and a web dashboard that works in current browsers on desktop and phone. The iOS app is in development.</p></details>
+    <details><summary>Which scripts get Companion features?</summary><p>Every linked device shows its status, alerts and controls. Features inside a script, such as asking you for directions, reach signed scripts only, and signing for your own scripts is still to come.</p></details>
+    <details><summary>Can I cancel any time?</summary><p>Yes. Cancel in the app or the billing portal and you keep access until the period you paid for ends. See the <a href="refunds.html">Refund and Cancellation Policy</a>.</p></details>
+    <details><summary>How do I reach you?</summary><p>Email <a href="mailto:gap.app.team@gmail.com">gap.app.team@gmail.com</a> or visit <a href="support.html">Support</a>.</p></details>
+  </div>
+</section>
+
+<section class="page cta" aria-labelledby="cta-title">
+  <div>
+    <h2 id="cta-title">Try GAP Companion free for 7 days</h2>
+    <p>No card needed. Then $15 a month, cancel any time.</p>
+  </div>
+  <div class="right">
+    <a class="btn primary lg" href="https://companion.gapapp.app/">Start free trial</a>
+    <a class="btn secondary lg" href="pricing.html">See pricing</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="page">
+  <p>GAP Companion · General Automation Platform</p>
+  <nav aria-label="GAP Companion links">
+    <ul>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="support.html">Support</a></li>
+      <li><a href="privacy.html">Privacy</a></li>
+      <li><a href="terms.html">Terms</a></li>
+      <li><a href="refunds.html">Refunds</a></li>
+      <li><a href="delete-account.html">Delete your account</a></li>
+      <li><a href="https://companion.gapapp.app/">Web dashboard</a></li>
+    </ul>
+  </nav>
+  <p class="c-legalline">© 2026 Thi Nguyen, doing business as General Automation Platform. Contact: <a href="mailto:gap.app.team@gmail.com">gap.app.team@gmail.com</a>. Payments are processed by Stripe. GAP Companion is not affiliated with Google, Apple or Stripe.</p>
+</footer>
+</body>
+</html>

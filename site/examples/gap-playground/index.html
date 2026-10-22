@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GAP Playground</title>
+<style>
+  body  { margin: 0; padding: 16px; font: 14px/1.5 sans-serif;
+          background: #0d1218; color: #eff2f6; }
+  h1    { font-size: 16px; margin: 0 0 4px; }
+  p     { color: #878d95; font-size: 12px; margin: 0 0 16px; }
+  label { display: block; margin: 0 0 14px; }
+  input[type=text], input[type=number] {
+          display: block; width: 100%; margin-top: 4px; padding: 7px 9px; font: inherit;
+          color: inherit; background: #171d25; border: 1px solid #313942; border-radius: 8px; }
+  .check { display: flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+<h1>GAP Playground</h1>
+<p>Press ▶ Play. With shell commands allowed, the script opens the page itself; otherwise open it in a browser first.</p>
+
+<label>Page address
+  <input id="url" type="text"
+         value="https://www.gapapp.app/examples/gap-playground/web/playground.html"></label>
+<label class="check"><input id="openPage" type="checkbox" checked>
+  Open the page for me (needs Allow shell commands)</label>
+<label>Message to type <input id="message" type="text" value="Hello from GAP"></label>
+
+<script>
+  var KEY = 'gap-playground-settings';
+
+  function fields() {
+    return {
+      url:      document.getElementById('url'),
+      openPage: document.getElementById('openPage'),
+      message:  document.getElementById('message')
+    };
+  }
+
+  // Put back what was saved last time.
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || '{}'), f = fields();
+    for (var k in saved) {
+      if (!f[k]) continue;
+      if (f[k].type === 'checkbox') f[k].checked = saved[k]; else f[k].value = saved[k];
+    }
+  } catch (e) {}
+
+  // Read the form, remember it, and hand it to start().
+  function settings() {
+    var f = fields();
+    var s = {
+      url: f.url.value.trim(),
+      openPage: f.openPage.checked,
+      message: f.message.value
+    };
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+    return s;
+  }
+
+  // GAP calls this when a button on the floating bar is pressed.
+  function onEvent(type) {
+    if (type === 'OnPlayClick') {
+      var code = 'start(' + JSON.stringify(settings()) + ');';
+      JavaScriptInterface.runScript(code);
+      JavaScriptInterface.showMenu();   // closes this panel, so the app is in view
+    }
+    if (type === 'OnPauseClick' || type === 'OnCloseClick') {
+      JavaScriptInterface.runScript('stop();');
+    }
+  }
+</script>
+</body>
+</html>

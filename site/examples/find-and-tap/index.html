@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find and tap</title>
+<style>
+  body  { margin: 0; padding: 16px; font: 14px/1.5 sans-serif;
+          background: #0d1218; color: #eff2f6; }
+  h1    { font-size: 16px; margin: 0 0 16px; }
+  label { display: flex; justify-content: space-between; align-items: center;
+          margin: 0 0 14px; }
+  input { width: 90px; padding: 6px 8px; font: inherit; color: inherit;
+          background: #171d25; border: 1px solid #313942; border-radius: 8px; }
+</style>
+</head>
+<body>
+<h1>Find and tap</h1>
+<label>Match threshold
+  <input id="threshold" type="number" min="0.5" max="1" step="0.01"
+         value="0.85"></label>
+<label>Taps before stopping
+  <input id="maxTaps" type="number" min="1" value="5"></label>
+
+<script>
+  var KEY = 'find-and-tap-settings';
+  var IDS = ['threshold', 'maxTaps'];
+
+  // Put back what was saved last time.
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+    IDS.forEach(function (id) {
+      if (id in saved) document.getElementById(id).value = saved[id];
+    });
+  } catch (e) {}
+
+  // Read the form, remember it, and hand it to start().
+  function settings() {
+    var s = {};
+    IDS.forEach(function (id) {
+      s[id] = parseFloat(document.getElementById(id).value);
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+    return s;
+  }
+
+  // GAP calls this when a button on the floating bar is pressed.
+  function onEvent(type) {
+    if (type === 'OnPlayClick') {
+      var code = 'start(' + JSON.stringify(settings()) + ');';
+      JavaScriptInterface.runScript(code);
+      JavaScriptInterface.showMenu();   // closes this panel, so the app is in view
+    }
+    if (type === 'OnPauseClick' || type === 'OnCloseClick') {
+      JavaScriptInterface.runScript('stop();');
+    }
+  }
+</script>
+</body>
+</html>

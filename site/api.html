@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GAP API Reference</title>
+<meta name="description" content="Every function a GAP script can call: screen capture, image matching, touch and keys, apps, files, network, the floating bar, and the settings-page bridge.">
+<meta property="og:title" content="GAP API Reference">
+<meta property="og:description" content="Every function a GAP script can call.">
+<meta property="og:image" content="https://www.gapapp.app/assets/icon-180.png">
+<meta name="theme-color" content="#0b0e12">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/icon-64.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("gap-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<link rel="preload" href="assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/gap.css">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body class="gap">
+<a class="skip btn primary" href="#main">Skip to content</a>
+
+<header class="page top">
+  <a class="brand" href="./">
+    <img src="assets/GAP_mark_mono.png" alt="">
+    <span class="name">General Automation <span>Platform</span></span>
+  </a>
+  <nav aria-label="Pages"><ul class="navlinks">
+    <li><a href="./">Home</a></li>
+    <li><a href="quickstart.html">Quick start</a></li>
+    <li><a href="api.html" aria-current="page">API</a></li>
+    <li><a href="playground.html">Playground</a></li>
+    <li><a href="companion/">Companion</a></li>
+  </ul></nav>
+  <button type="button" class="theme-btn" data-theme-toggle>Light theme</button>
+</header>
+
+<main id="main" class="page">
+
+<section class="qs-hero" aria-labelledby="api-title">
+  <p class="fact"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#sliders"/></svg> API reference · GAP 4.6</p>
+  <h1 id="api-title">Everything a script<br><span>can call.</span></h1>
+  <p class="intro">Every function is a <b>global</b>: a script calls <code>tap(…)</code>, not <code>gap.tap(…)</code>. Scripts are modern JavaScript (ES2023) running in GAP's engine on the device.</p>
+  <input class="api-search" id="q" type="search" placeholder="Filter: tap, image, file, env…" aria-label="Filter the reference">
+</section>
+
+<div class="qs-layout">
+  <nav class="toc" aria-label="Sections">
+    <p>Sections</p>
+    <ol>
+      <li><a href="#conventions">Conventions</a></li>
+      <li><a href="#lifecycle">start() and stop()</a></li>
+      <li><a href="#screen">Screen</a></li>
+      <li><a href="#input">Touch and keys</a></li>
+      <li><a href="#apps">Apps and device</a></li>
+      <li><a href="#processing">Image processing</a></li>
+      <li><a href="#matching">Matching</a></li>
+      <li><a href="#imageio">Image files</a></li>
+      <li><a href="#system">Timing and paths</a></li>
+      <li><a href="#files">Files</a></li>
+      <li><a href="#shell">Shell: execute()</a></li>
+      <li><a href="#overlay">Overlay, log and events</a></li>
+      <li><a href="#network">Settings and network</a></li>
+      <li><a href="#control">Script control</a></li>
+      <li><a href="#restart">Restarts and speed</a></li>
+      <li><a href="#page">Settings page bridge</a></li>
+      <li><a href="#folder">Files in a script folder</a></li>
+      <li><a href="#js">The language</a></li>
+    </ol>
+  </nav>
+
+  <div id="ref">
+
+<section class="api-group" id="conventions" aria-labelledby="conventions-t">
+  <h2 id="conventions-t">Conventions</h2>
+  <ul class="plain" style="margin-left:1.2em">
+    <li><b>Images are integer handles, and <code>0</code> means “no image”.</b> <code>openImage()</code> returns <code>0</code> for a missing file. Every handle you get must be passed to <code>releaseImage()</code> — they are native memory, not garbage-collected.</li>
+    <li><b>Some image functions change the image you pass in</b> instead of returning a new one. They are marked <span class="flag inplace">in place</span> below.</li>
+    <li><b>Coordinates are screen pixels</b>, the same space for screenshots and touches. Fractions are rounded.</li>
+    <li><b><code>during</code> is a wait after the action</b>, giving the app time to react — not how long a finger is held.</li>
+    <li>Calls marked <span class="flag newer">newer</span> are not in GAP 3.3, the current stable release, so check first: <code>if (typeof gapPerf === 'function') …</code></li>
+    <li>Calls marked <span class="flag gated">opt-in</span> do nothing until the user switches them on for that script.</li>
+  </ul>
+</section>
+
+<section class="api-group" id="lifecycle" aria-labelledby="lifecycle-t">
+  <h2 id="lifecycle-t">start() and stop()</h2>
+  <p>A script defines two globals. The floating bar's <b>Play</b> calls <code>start(settings)</code> through the settings page, and <b>Stop</b> calls <code>stop()</code>. <code>start()</code> usually loops; <code>stop()</code> runs on another thread while it does, so it only needs to clear a flag the loop checks.</p>
+  <div class="file"><div class="term-bar"><span class="name">index.js</span></div>
+<pre>var running = false;
+
+function start(settings = {}) {
+  running = true;
+  while (running) {
+    // look, decide, act
+    sleep(500);
+  }
+}
+
+function stop() {
+  running = false;
+}</pre></div>
+  <p><b>Pause</b> needs nothing from the script: GAP freezes it inside <code>sleep()</code> and inside every touch call (not <code>keycode()</code> or <code>typing()</code>), and it continues from the same spot on resume. After a Stop, new touches from that run are dropped; a drag already in progress can still finish its <code>moveTo()</code> and <code>tapUp()</code>.</p>
+  <p>Optional hooks: define <code>onPause()</code> and <code>onResume()</code> to be called around a pause, and <code>reportIssue(reason, arg)</code> to be called when the user holds the bar's Log button to report a problem. A script can also name itself with <code>const GAP_SCRIPT_ID = '…'</code>.</p>
+</section>
+
+<section class="api-group" id="screen" aria-labelledby="screen-t">
+  <h2 id="screen-t">Screen</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>getScreenSize()</td><td>{width, height}</td><td>The screen size right now, following rotation.</td></tr>
+      <tr><td>getVirtualButtonHeight()</td><td>number</td><td>Height of the navigation bar, <code>0</code> when there is none.</td></tr>
+      <tr><td>getScreenshot()</td><td>image</td><td>The whole screen, in BGRA. About a millisecond on the fast capture path.</td></tr>
+      <tr><td>getScreenshotModify(cropX, cropY, cropW, cropH, resizeW, resizeH, quality)</td><td>image</td><td>A region of the screen, optionally resized. Crop first, then resize (<code>0</code> = no resize); a <code>quality</code> of 1–99 adds a JPEG round-trip, <code>100</code> leaves it out.</td></tr>
+      <tr><td>getColor(x, y)</td><td>{r, g, b, a}</td><td>The colour of one pixel, from a fresh capture. Nothing to release.</td></tr>
+      <tr><td>getColors(points)</td><td>[{r, g, b, a}]</td><td>Several pixels from one capture. <code>points</code> is <code>[{x, y}]</code>.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="input" aria-labelledby="input-t">
+  <h2 id="input-t">Touch and keys</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>tap(x, y, during, holdMs)</td><td>—</td><td>Press, hold <code>holdMs</code> (default 40, up to 5000), release, then wait <code>during</code> ms. <code>holdMs</code> is <span class="flag newer">newer</span>.</td></tr>
+      <tr><td>tapDown(x, y, during)</td><td>—</td><td>Put a finger down.</td></tr>
+      <tr><td>moveTo(x, y, during, wait)</td><td>—</td><td>Move the finger that is down. With <code>wait</code> true it returns only once the app has taken the move, so a long drag on a busy app loses nothing.</td></tr>
+      <tr><td>tapUp(x, y, during)</td><td>—</td><td>Lift the finger.</td></tr>
+      <tr><td>swipe(x1, y1, x2, y2, during)</td><td>—</td><td>A swipe: down, ten moves, up.</td></tr>
+      <tr><td>keycode(label, during)</td><td>—</td><td>Press a key: <code>'HOME'</code>, <code>'BACK'</code>, <code>'KEYCODE_ENTER'</code>, or a number.</td></tr>
+      <tr><td>typing(words, during)</td><td>—</td><td>Type text into whatever has focus. Characters the keyboard map can't produce are skipped.</td></tr>
+      <tr><td>readTouch(timeoutMs)</td><td>{x, y, down} | null</td><td>Wait for the user's next touch, in screen pixels. Up to 120 s; <code>null</code> on timeout.</td></tr>
+      <tr><td>touchDevices()</td><td>[{path, xMax, yMax}]</td><td>The touchscreens the device reports.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="apps" aria-labelledby="apps-t">
+  <h2 id="apps-t">Apps and device</h2>
+  <p>Always available, with no shell needed.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>launchApp(package, activity)</td><td>boolean</td><td>Open an app, by its launcher entry unless you name an activity. Opening one that is already open doesn't stack a second copy.</td></tr>
+      <tr><td>stopApp(package)</td><td>boolean</td><td>Force-stop an app.</td></tr>
+      <tr><td>isInstalled(package)</td><td>boolean</td><td>Whether an app is installed.</td></tr>
+      <tr><td>foregroundApp()</td><td>{package, activity} | null</td><td>The app in front.</td></tr>
+      <tr><td>deviceInfo()</td><td>object | null</td><td><code>{model, manufacturer, device, androidRelease, fingerprint, emulator, density, rooted}</code>. <code>density</code> and <code>rooted</code> are <span class="flag newer">newer</span>.</td></tr>
+      <tr><td>dumpUi()</td><td>string</td><td>The window hierarchy as XML, <code>""</code> when it can't be read. Handy for reading text and finding views by id.</td></tr>
+      <tr><td>getDeviceId()</td><td>string</td><td>Twelve hex digits naming this device, stable across reboots, different per emulator instance.</td></tr>
+      <tr><td>getDeviceName()</td><td>string</td><td>The device's name, as set in GAP's Settings; if unset, its model and the start of its id.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="processing" aria-labelledby="processing-t">
+  <h2 id="processing-t">Image processing</h2>
+  <p>OpenCV underneath. Colour bounds are per channel in <b>B, G, R, A</b> order.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>clone(img)</td><td>image</td><td>A copy.</td></tr>
+      <tr><td>cropImage(img, x, y, width, height)</td><td>image</td><td>A rectangle of it. Clamped to the image; entirely outside returns <code>0</code>.</td></tr>
+      <tr><td>resizeImage(img, width, height)</td><td>image</td><td>Scaled.</td></tr>
+      <tr><td>bgrToGray(img)</td><td>image</td><td>Greyscale.</td></tr>
+      <tr><td>absDiff(a, b)</td><td>image</td><td>Per-pixel difference — what changed between two frames.</td></tr>
+      <tr><td>inRange(img, minB, minG, minR, minA, maxB, maxG, maxR, maxA)</td><td>image (mask)</td><td>White where a pixel's colour is inside the bounds.</td></tr>
+      <tr><td>outRange(img, minB, minG, minR, minA, maxB, maxG, maxR, maxA)</td><td>image (mask)</td><td>White where it is outside.</td></tr>
+      <tr><td>cloneWithMask(img, mask)</td><td>image</td><td>Only the masked pixels.</td></tr>
+      <tr><td>canny(img, t1, t2, apertureSize)</td><td>image</td><td>Edges.</td></tr>
+      <tr><td>findContours(edges, minArea, maxArea)</td><td>[{x, y, width, height, area}]</td><td>Outlines found in an edge image, as boxes. <code>maxArea</code> 0 = no upper limit.</td></tr>
+      <tr><td>houghCircles(img, method, dp, minDist, p1, p2, minR, maxR)</td><td>[{x, y, radius}]</td><td>Circles.</td></tr>
+      <tr><td>smooth(img, type, size)<span class="flag inplace">in place</span></td><td>—</td><td>Blur: <code>1</code> box, <code>2</code> Gaussian, <code>3</code> median, <code>4</code> bilateral.</td></tr>
+      <tr><td>convertColor(img, code)<span class="flag inplace">in place</span></td><td>—</td><td>Convert colour space with an OpenCV code.</td></tr>
+      <tr><td>threshold(img, thr, maxThr, code)<span class="flag inplace">in place</span></td><td>—</td><td>Threshold.</td></tr>
+      <tr><td>eroid(img, width, height, x, y)<span class="flag inplace">in place</span></td><td>—</td><td>Erode (the name is the original API's).</td></tr>
+      <tr><td>dilate(img, width, height, x, y)<span class="flag inplace">in place</span></td><td>—</td><td>Dilate.</td></tr>
+      <tr><td>drawCircle(img, x, y, radius, r, g, b, a)<span class="flag inplace">in place</span></td><td>—</td><td>Draw a circle, for debug pictures.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="matching" aria-labelledby="matching-t">
+  <h2 id="matching-t">Matching</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>findImage(img, template)</td><td>{x, y, score}</td><td>Where the template best matches, with a score from 0 to 1. <code>x, y</code> is the top-left corner. A template bigger than the image gives <code>{x: -1, y: -1, score: -1}</code>.</td></tr>
+      <tr><td>findImages(img, template, scoreLimit, resultCountLimit, withoutOverlap)</td><td>[{x, y, score}]</td><td>Every match above a score.</td></tr>
+      <tr><td>getIdentityScore(a, b)</td><td>number</td><td>How alike two pictures are, resizing <code>b</code> to <code>a</code> first — “is this the same screen?”.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="callout">Single-colour templates are handled: they are matched a different way so a score of 1.0 still means a perfect match.</p>
+</section>
+
+<section class="api-group" id="imageio" aria-labelledby="imageio-t">
+  <h2 id="imageio-t">Image files</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>openImage(path)</td><td>image</td><td>Load a PNG or JPEG. <b><code>0</code> when the file is missing.</b></td></tr>
+      <tr><td>saveImage(img, path)</td><td>—</td><td>Save, creating folders. <code>.jpg</code> drops transparency.</td></tr>
+      <tr><td>getImageSize(img)</td><td>{width, height}</td><td></td></tr>
+      <tr><td>getImageColor(img, x, y)</td><td>{r, g, b, a}</td><td>A pixel of an image you hold. Outside the image gives zeros.</td></tr>
+      <tr><td>getImageColors(img, points)</td><td>[{r, g, b, a}]</td><td>Several at once.</td></tr>
+      <tr><td>releaseImage(img)</td><td>—</td><td>Free it. Using it afterwards throws.</td></tr>
+      <tr><td>getImageFromBase64(text)</td><td>image</td><td>Decode, <code>data:</code> prefix allowed.</td></tr>
+      <tr><td>getBase64FromImage(img)</td><td>string</td><td>PNG as base64.</td></tr>
+      <tr><td>getImageFromURL("env:KEY")<span class="flag gated">opt-in</span></td><td>image</td><td>Download an image from a URL the user configured; 0 if that fails or is not allowed. See <a href="#network">network</a>.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="system" aria-labelledby="system-t">
+  <h2 id="system-t">Timing and paths</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>sleep(ms)</td><td>—</td><td>Wait. Stop, Close and Pause all take effect during it. There is no <code>setTimeout</code>: scripts are loops around <code>sleep()</code>.</td></tr>
+      <tr><td>getScriptPath()</td><td>string</td><td>This script's own folder — use it for <code>images/</code> and anything shipped with the script.</td></tr>
+      <tr><td>getStoragePath()</td><td>string</td><td>GAP's folder, <code>…/Download/GeneralAutomationPlatform</code>.</td></tr>
+      <tr><td>getDevicePath()</td><td>string</td><td>A folder for this device alone, for output. Use it when several emulators share storage.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="files" aria-labelledby="files-t">
+  <h2 id="files-t">Files</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>readFile(path)</td><td>string</td><td><code>""</code> when it can't be read.</td></tr>
+      <tr><td>writeFile(path, text)</td><td>—</td><td>Creates folders as needed.</td></tr>
+      <tr><td>makeDirs(path)</td><td>boolean</td><td>Like <code>mkdir -p</code>.</td></tr>
+      <tr><td>listDir(path)</td><td>[string]</td><td>Names, sorted. A missing folder lists empty.</td></tr>
+      <tr><td>copyFile(from, to)</td><td>boolean</td><td>Overwrites.</td></tr>
+      <tr><td>removeFile(path, recursive)</td><td>boolean</td><td>Folders only with <code>recursive</code>.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="shell" aria-labelledby="shell-t">
+  <h2 id="shell-t">Shell: execute()</h2>
+  <p>When no named call does what you need, <code>execute()</code> runs any shell command with the same access <code>adb shell</code> has — <code>am</code>, <code>pm</code>, <code>settings</code>, <code>input</code>, and the rest.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>execute(command)<span class="flag gated">opt-in</span></td><td>string</td><td>Runs <code>command</code> and returns its output (stdout and stderr together). <code>""</code> while the switch is off.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="callout warn"><b>Off until the user allows it:</b> tap the script's card in the Library, tap <b>Settings</b> to open its Script env screen, and turn on <b>Allow shell commands</b> (GAP asks to confirm). On GAP 4.4 and earlier, Script env is the sliders button on the card instead. Scripts signed for GAP Companion always have it. The switch applies at once. Write scripts to carry on without it, and prefer the named calls above — they are faster and always available. The <a href="playground.html">Playground example</a> uses it this way to open a web page.</p>
+  <div class="file"><div class="term-bar"><span class="name">example</span></div>
+<pre>// Open a web page — something no named call does.
+var out = execute('am start -a android.intent.action.VIEW -d "https://example.com"');
+if (out === '') {
+  console.log('Shell is off: open the page yourself, or allow shell commands');
+}</pre></div>
+</section>
+
+<section class="api-group" id="overlay" aria-labelledby="overlay-t">
+  <h2 id="overlay-t">Overlay, log and events</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>console.log / info / warn / error / debug</td><td>—</td><td>To the log panel, the settings page's <code>onLog()</code>, logcat (<code>gap.script</code>) and the log file in <code>logs/</code>. Objects are printed as JSON.</td></tr>
+      <tr><td>showBanner(message, duration, plays)</td><td>—</td><td>A line on the banner beside the floating bar. <code>plays</code> 0 = for the whole run. Also takes <code>{message, duration, plays}</code>.</td></tr>
+      <tr><td>setReadTop(y)</td><td>—</td><td>The top-most screen row the script reads, so GAP keeps its status line above it. Negative withdraws it.</td></tr>
+      <tr><td>pauseScript()</td><td>—</td><td>Pause this run, as if Pause were pressed. The user resumes it.</td></tr>
+      <tr><td>emitEvent(name, data)</td><td>—</td><td>Broadcast one of your own events to tools on a computer — to start a screen recording, say. Up to 50 a second, 16 KB each.</td></tr>
+      <tr><td>emitTrace(kind, data)</td><td>—</td><td>Live debug data for a developer tool.</td></tr>
+      <tr><td>traceAttached()</td><td>boolean</td><td>Whether such a tool is connected; check before building anything expensive.</td></tr>
+      <tr><td>traceWantFrame() · traceFrameId()</td><td>— · number</td><td>Send the next capture to the tool; the id sent for the latest capture, or 0 if it was not sent.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="network" aria-labelledby="network-t">
+  <h2 id="network-t">Settings and network</h2>
+  <p>A script never names a URL. It ships <code>gap-env.json</code> listing the values it wants; the user fills them in from a button on its Library card, and must switch on <b>Use environment variables</b> and, for requests, <b>Allow network requests</b>. Requests then say <code>"env:KEY"</code>, and GAP sends them to the URL the user typed.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>getEnv(key)<span class="flag gated">opt-in</span></td><td>string | number | boolean | undefined</td><td>The user's value, else the default. <code>undefined</code> while variables are off.</td></tr>
+      <tr><td>httpClient(method, "env:KEY", body, headers)<span class="flag gated">opt-in</span></td><td>string</td><td>A request that waits for the answer. Error bodies are returned too; <code>""</code> when refused or failed.</td></tr>
+      <tr><td>httpRequest(method, "env:KEY", body, headers)<span class="flag gated">opt-in</span></td><td>number</td><td>A request that returns at once with an id; the answer arrives as a network event.</td></tr>
+      <tr><td>addNetworkListener(fn) · removeNetworkListener(fn)</td><td>—</td><td><code>fn({id, type, status, body, error, …})</code> for each step: <code>queued</code>, <code>sent</code>, then <code>done</code>, <code>failed</code> or <code>refused</code>.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="callout">Limits: one request at a time, at least a second apart, 30 a minute per key, bodies up to 1 MiB. Settings pages can't use the network at all.</p>
+</section>
+
+<section class="api-group" id="control" aria-labelledby="control-t">
+  <h2 id="control-t">Script control</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>importJS(library)</td><td>—</td><td>Load another file: an absolute path, or a name from <code>libs/</code> or <code>scripts/</code>.</td></tr>
+      <tr><td>runScript(code)</td><td>—</td><td>Evaluate code in the script's global scope.</td></tr>
+      <tr><td>encrypt(code) · runEncryptedScript(text)</td><td>string · —</td><td>Ship closed-source code: encrypt once, run the result.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="restart" aria-labelledby="restart-t">
+  <h2 id="restart-t">Restarts and speed</h2>
+  <p>For long runs that slow down over hours. Both take and return JSON text.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Call</th><th>Returns</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>gapPerf(options)<span class="flag newer">newer</span></td><td>JSON</td><td>The run's capture rate and capture time against how fast the device was just after it started, and whether that counts as slow.</td></tr>
+      <tr><td>gapRestartDevice(options)<span class="flag newer">newer</span><span class="flag gated">opt-in</span></td><td>JSON</td><td>Restart the device. Needs shell access, and GAP Companion linked to start the run again afterwards.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="page" aria-labelledby="page-t">
+  <h2 id="page-t">Settings page bridge</h2>
+  <p>A script's <code>index.html</code> runs in GAP's floating window, offline. It talks to the script through <code>JavaScriptInterface</code>, and GAP calls back into it.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>In index.html</th><th>Kind</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>onEvent(type)</td><td>you define</td><td>A floating-bar button was pressed: <code>OnPlayClick</code>, <code>OnPauseClick</code> (the Stop button), <code>OnCloseClick</code>, <code>OnSettingClick</code>, <code>OnLogClick</code>, <code>OnMenuClick</code>.</td></tr>
+      <tr><td>onLog(message)</td><td>you define</td><td>Every console line from the script.</td></tr>
+      <tr><td>onGapState(json)</td><td>you define</td><td>Quick Bar page only: the run's state, <code>{active, paused, visible, stripHeight}</code>.</td></tr>
+      <tr><td>onGapMessage(topic)</td><td>you define</td><td>A nudge from the script's other page (settings ↔ Quick Bar).</td></tr>
+      <tr><td>JavaScriptInterface.runScript(code)</td><td>call</td><td>Run code in index.js, e.g. <code>'start(' + JSON.stringify(settings) + ');'</code>.</td></tr>
+      <tr><td>JavaScriptInterface.runScriptCallback(code, fnName)</td><td>call</td><td>Run it and call the page's <code>fnName(result)</code> with the answer.</td></tr>
+      <tr><td>JavaScriptInterface.showMenu() · hideMenu()</td><td>call</td><td>Show or hide the floating bar. <code>showMenu()</code> also closes the settings panel, so an <code>OnPlayClick</code> handler calls it to get out of the way.</td></tr>
+      <tr><td>JavaScriptInterface.setClipboard(text) · getClipboard()</td><td>call</td><td>The system clipboard.</td></tr>
+      <tr><td>JavaScriptInterface.broadcast(topic)</td><td>call</td><td>Nudge the script's other page.</td></tr>
+      <tr><td>JavaScriptInterface.setVersion(version)</td><td>call</td><td>The version on the bar's first chip (or define a <code>VERSION</code> global).</td></tr>
+      <tr><td>JavaScriptInterface.setQuickBarExpanded(on) · setQuickBarHotspot(l, t, w, h)</td><td>call</td><td>Quick Bar layout.</td></tr>
+      <tr><td>JavaScriptInterface.stopScript() · interruptScript()</td><td>call</td><td>Stop the run: politely, through the script's <code>stop()</code>, or at once, even mid-loop.</td></tr>
+      <tr><td>JavaScriptInterface.log(message)</td><td>call</td><td>Write a line to the script's log.</td></tr>
+      <tr><td>JavaScriptInterface.getScriptId() · isServiceConnected()</td><td>call</td><td>This script's id; whether GAP's engine is reachable.</td></tr>
+      <tr><td>JavaScriptInterface.close()</td><td>call</td><td>Close the floating window.</td></tr>
+      <tr><td>localStorage</td><td>web API</td><td>Where settings are kept between runs.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="folder" aria-labelledby="folder-t">
+  <h2 id="folder-t">Files in a script folder</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>File</th><th>Needed</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>index.js</td><td>yes</td><td>The script.</td></tr>
+      <tr><td>index.html</td><td>yes</td><td>Its settings page, which also connects Play and Stop.</td></tr>
+      <tr><td>images/</td><td>no</td><td>Templates for <code>findImage()</code>.</td></tr>
+      <tr><td>quickbar.html</td><td>no</td><td>A strip of the script's own buttons beside the floating bar.</td></tr>
+      <tr><td>floating-bar.json</td><td>no</td><td>Sizes, colours and icons for the floating bar.</td></tr>
+      <tr><td>gap-env.json</td><td>no</td><td>The values the script asks the user for (URLs, keys) — see <a href="#network">network</a>.</td></tr>
+      <tr><td>gap-backup.json</td><td>no</td><td><code>{"v": 1, "keys": [...]}</code>: which localStorage keys get <b>Back up / Restore settings</b> on the card.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="api-group" id="js" aria-labelledby="js-t">
+  <h2 id="js-t">The language</h2>
+  <p>QuickJS-ng with ES2023: <code>class</code> with private fields, <code>async</code>/<code>await</code>, generators, optional chaining, <code>??</code>, destructuring, template literals, <code>BigInt</code>, <code>Proxy</code>. Files are classic scripts, so <code>function start(){}</code> lands on the global object; name a file <code>.mjs</code> for module semantics. There is no <code>setTimeout</code> or <code>setInterval</code>.</p>
+</section>
+
+<p class="noresults" id="none">Nothing matches that filter.</p>
+
+  </div>
+</div>
+</main>
+
+<footer class="page">
+  <p>General Automation Platform · Android 7.0+</p>
+  <nav aria-label="Project links">
+    <ul>
+      <li><a href="./">Home</a></li>
+      <li><a href="quickstart.html">Quick start</a></li>
+      <li><a href="playground.html">Playground</a></li>
+      <li><a href="https://discord.gg/NTSAacRCv" target="_blank" rel="noopener">Support on Discord</a></li>
+    </ul>
+  </nav>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var q = document.getElementById('q');
+  var groups = [].slice.call(document.querySelectorAll('.api-group'));
+  q.addEventListener('input', function () {
+    var term = q.value.trim().toLowerCase(), any = false;
+    groups.forEach(function (g) {
+      var rows = [].slice.call(g.querySelectorAll('tbody tr')), shown = 0;
+      rows.forEach(function (r) {
+        var hit = !term || r.textContent.toLowerCase().indexOf(term) !== -1;
+        r.hidden = !hit; if (hit) shown++;
+      });
+      var titleHit = term && g.querySelector('h2').textContent.toLowerCase().indexOf(term) !== -1;
+      if (titleHit) rows.forEach(function (r) { r.hidden = false; });
+      var visible = !term || shown > 0 || titleHit;
+      g.hidden = !visible; if (visible) any = true;
+    });
+    document.getElementById('none').style.display = any ? 'none' : 'block';
+  });
+})();
+</script>
+</body>
+</html>

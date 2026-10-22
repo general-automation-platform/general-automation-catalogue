@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GAP Playground Example</title>
+<meta name="description" content="A complete GAP script and a web page for it to drive: tap a moving target, type and send a message, drag a slider. Tested on a device, with screenshots.">
+<meta property="og:title" content="GAP Playground Example">
+<meta property="og:description" content="A complete, tested GAP script and the web page it drives.">
+<meta property="og:image" content="https://www.gapapp.app/assets/icon-180.png">
+<meta name="theme-color" content="#0b0e12">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/icon-64.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("gap-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<link rel="preload" href="assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/gap.css">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body class="gap">
+<a class="skip btn primary" href="#main">Skip to content</a>
+
+<header class="page top">
+  <a class="brand" href="./">
+    <img src="assets/GAP_mark_mono.png" alt="">
+    <span class="name">General Automation <span>Platform</span></span>
+  </a>
+  <nav aria-label="Pages"><ul class="navlinks">
+    <li><a href="./">Home</a></li>
+    <li><a href="quickstart.html">Quick start</a></li>
+    <li><a href="api.html">API</a></li>
+    <li><a href="playground.html" aria-current="page">Playground</a></li>
+    <li><a href="companion/">Companion</a></li>
+  </ul></nav>
+  <button type="button" class="theme-btn" data-theme-toggle>Light theme</button>
+</header>
+
+<main id="main" class="page">
+
+<section class="qs-hero" aria-labelledby="pg-title">
+  <p class="fact"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check"/></svg> Example · tested on a device</p>
+  <h1 id="pg-title">GAP Playground:<br><span>a script, in action.</span></h1>
+  <p class="intro">A complete script and a web page for it to drive. Open the page in a browser on the device, press Play, and watch GAP tap a moving target, type a message, and drag a slider — then check its own work.</p>
+  <div class="dlrow">
+    <a class="btn sm primary" href="https://github.com/general-automation-platform/general-automation-catalogue/tree/master/site/examples/gap-playground" target="_blank" rel="noopener">Get the folder on GitHub</a>
+    <a class="btn sm secondary" href="examples/gap-playground/web/playground.html" target="_blank" rel="noopener">Open the playground page</a>
+  </div>
+</section>
+
+<div class="qs-layout">
+  <nav class="toc" aria-label="Sections">
+    <p>On this page</p>
+    <ol>
+      <li><a href="#see">See it run</a></li>
+      <li><a href="#files">The folder</a></li>
+      <li><a href="#run">Run it yourself</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#code">The script</a></li>
+      <li><a href="#lessons">What testing taught</a></li>
+    </ol>
+  </nav>
+
+  <div>
+
+<section class="qs-step" id="see" aria-labelledby="see-t">
+  <h2 id="see-t"><span class="stepnum">1</span>See it run</h2>
+  <p>Real screenshots from GAP's own capture, on an Android 12 emulator at 540 × 960, started from the Library and the floating bar's ▶ Play like any user would.</p>
+  <div class="shots">
+    <figure><img src="examples/gap-playground/screenshots/3-running.jpg" alt="The playground page with the target at 2 of 5 hits, the floating bar showing Pause, and the banner saying Playground: starting" loading="lazy" width="540" height="960"><figcaption>Running: 2 of 5 hits, the bar's Play has turned to Pause, and the script's banner is up.</figcaption></figure>
+    <figure><img src="examples/gap-playground/screenshots/4-target-done.jpg" alt="Task 1 done with its green badge, 5 of 5" loading="lazy" width="540" height="960"><figcaption>Task 1 done: the target is gone and the green badge is on.</figcaption></figure>
+    <figure><img src="examples/gap-playground/screenshots/5-all-done.jpg" alt="All three tasks done, Received: Hello from GAP, slider at the end" loading="lazy" width="540" height="960"><figcaption>All three done, about seven seconds after Play.</figcaption></figure>
+  </div>
+  <div class="file"><div class="term-bar"><span class="name">Log from that run</span></div>
+<pre class="short">[playground] opened http://&lt;test server&gt;/examples/gap-playground/web/playground.html
+[playground] waiting for the page
+[playground] tap 1 at 460,422
+[playground] tap 2 at 165,422
+[playground] tap 3 at 337,347
+[playground] tap 4 at 375,435
+[playground] tap 5 at 259,458
+[playground] tasks done: 1 of 3
+[playground] typed "Hello from GAP"
+[playground] pressed Send
+[playground] tasks done: 2 of 3
+[playground] slid the knob to x=497
+[playground] tasks done: 3 of 3
+[playground] all three tasks done</pre></div>
+  <p class="more">The page was served from a local machine for the test, so the address bar and the log show a local address.</p>
+</section>
+
+<section class="qs-step" id="files" aria-labelledby="files-t">
+  <h2 id="files-t"><span class="stepnum">2</span>The folder</h2>
+  <div class="file"><div class="term-bar"><span class="name">gap-playground/</span></div>
+<pre class="short">gap-playground/
+├── index.js             <span class="c-com">the script</span>
+├── index.html           <span class="c-com">its settings page: page address, open it for me, message</span>
+├── web/
+│   └── playground.html  <span class="c-com">the page the script drives</span>
+├── screenshots/         <span class="c-com">the run above; not needed on the device</span>
+└── README.md</pre></div>
+  <div class="dlrow">
+    <a class="btn sm secondary" href="examples/gap-playground/index.js" download>index.js</a>
+    <a class="btn sm secondary" href="examples/gap-playground/index.html" download>index.html</a>
+    <a class="btn sm secondary" href="examples/gap-playground/web/playground.html" download>web/playground.html</a>
+    <a class="btn sm secondary" href="examples/gap-playground/README.md" download>README.md</a>
+  </div>
+</section>
+
+<section class="qs-step" id="run" aria-labelledby="run-t">
+  <h2 id="run-t"><span class="stepnum">3</span>Run it yourself</h2>
+  <ol class="steps" style="margin-bottom:16px">
+    <li><div>Copy the folder to the device, into GAP's scripts folder:<div class="file"><div class="term-bar"><span class="name">Terminal</span></div><pre class="short">adb shell mkdir -p /sdcard/Download/GeneralAutomationPlatform/scripts
+adb push gap-playground /sdcard/Download/GeneralAutomationPlatform/scripts/</pre></div></div></li>
+    <li><div>In GAP, open <b>Library → Local</b>. The script is listed as on this device.<img class="shot-wide" src="examples/gap-playground/screenshots/1-library.jpg" alt="The gap-playground card in GAP's Library" loading="lazy" width="540" height="116"></div></li>
+    <li><div><i>Optional:</i> let the script open the page itself. Tap the card, tap <b>Settings</b>, and turn on <b>Allow shell commands</b> (GAP asks you to confirm). Without it, open <a href="examples/gap-playground/web/playground.html" target="_blank" rel="noopener">the playground page</a> in the device's browser yourself.<img class="shot-tall" src="examples/gap-playground/screenshots/2-allow-shell.jpg" alt="GAP's Script env screen with Allow shell commands switched on" loading="lazy" width="540" height="960"></div></li>
+    <li><div>Tap <b>▶</b> on the card. The floating bar appears. Press <b>▶ Play</b> on the bar.</div></li>
+  </ol>
+</section>
+
+<section class="qs-step" id="how" aria-labelledby="how-t">
+  <h2 id="how-t"><span class="stepnum">4</span>How it works</h2>
+  <p>Every control on the page has a colour nothing else uses — magenta target, cyan text box, blue Send, orange knob — so the script finds them by colour, at any screen size. With an app you don't control, you'd find things by picture instead; the <a href="quickstart.html">Quick start</a> shows that.</p>
+  <div class="table-wrap">
+    <table class="trouble">
+      <thead><tr><th scope="col">Step</th><th scope="col">Calls</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Open the page</th><td><code>execute('am start -a android.intent.action.VIEW -d "…"')</code> — the shell fallback, since no named call opens a URL. Returns <code>""</code> while shell commands are off, and the script carries on.</td></tr>
+        <tr><th scope="row">Find a control</th><td><code>getScreenshot()</code> → <code>inRange()</code> for its colour → <code>findContours()</code> for the patches → <code>releaseImage()</code></td></tr>
+        <tr><th scope="row">Tap the target</th><td><code>tap(x, y, 400)</code>, until the target is gone</td></tr>
+        <tr><th scope="row">Type and send</th><td><code>tap()</code> the text box, <code>typing(text)</code>, find Send again, <code>tap()</code> it</td></tr>
+        <tr><th scope="row">Drag the slider</th><td><code>tapDown()</code>, twenty <code>moveTo(x, y, 15, true)</code>, <code>tapUp()</code></td></tr>
+        <tr><th scope="row">Check its work</th><td>Count the green badges; try a task once more if it didn't register</td></tr>
+        <tr><th scope="row">Tell the user</th><td><code>console.log()</code> for the log, <code>showBanner()</code> for the strip by the bar</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="qs-step" id="code" aria-labelledby="code-t">
+  <h2 id="code-t"><span class="stepnum">5</span>The script</h2>
+  <div class="file"><div class="term-bar"><span class="name">index.js</span><span class="acts"><button type="button" data-copy>Copy</button><a href="examples/gap-playground/index.js" download>Download</a></span></div>
+<pre>// GAP Playground: drives web/playground.html in a browser on the device.
+//
+//   1. taps a target that jumps somewhere new after every tap
+//   2. types a message into a text box and presses Send
+//   3. drags a slider to the end
+//
+// It finds each control by its colour, which works at any screen size, and
+// checks its own work by counting the green "done" badges the page shows.
+
+var running = false;
+
+// The page gives every control a colour nothing else on it uses: [r, g, b].
+var COLOURS = {
+  target: [255, 0, 255],   // magenta
+  input:  [0, 255, 255],   // cyan border
+  send:   [0, 64, 255],    // blue
+  knob:   [255, 128, 0],   // orange
+  done:   [0, 200, 83]     // green badge on a finished task
+};
+var TOLERANCE = 40;        // how far a pixel may be from the colour and still count
+
+function log(message) {
+  console.log('[playground] ' + message);
+}
+
+// Every patch of one colour on the screen, biggest first, as boxes with a centre.
+function findColour(screen, name, minArea) {
+  var c = COLOURS[name], t = TOLERANCE;
+  var mask = inRange(screen, c[2] - t, c[1] - t, c[0] - t, 0,     // B, G, R, A low
+                             c[2] + t, c[1] + t, c[0] + t, 255);  // B, G, R, A high
+  var boxes;
+  try { boxes = findContours(mask, minArea || 100, 0); }
+  finally { releaseImage(mask); }
+  return boxes
+    .sort(function (a, b) { return b.area - a.area; })
+    .map(function (b) {
+      return { x: b.x, y: b.y, w: b.width, h: b.height,
+               cx: Math.round(b.x + b.width / 2), cy: Math.round(b.y + b.height / 2) };
+    });
+}
+
+// Take a screenshot, find one colour, and release the screenshot.
+function look(name, minArea) {
+  var screen = getScreenshot();
+  if (screen === 0) return [];
+  try { return findColour(screen, name, minArea); }
+  finally { releaseImage(screen); }
+}
+
+// Look again and again until the colour shows up, or give up after timeoutMs.
+function waitFor(name, timeoutMs) {
+  var until = Date.now() + timeoutMs;
+  while (running &amp;&amp; Date.now() &lt; until) {
+    var found = look(name);
+    if (found.length) return found[0];
+    sleep(300);
+  }
+  return null;
+}
+
+// How many tasks the page shows as done.
+function doneCount() {
+  return look('done', 60).length;
+}
+
+function openPage(url) {
+  // There is no named call for "open this URL", so this is execute()'s job.
+  // It only works once "Allow shell commands" is on for this script.
+  var out = execute('am start -a android.intent.action.VIEW -d "' + url + '"');
+  if (out === '') {
+    log('shell commands are off, so open the page yourself: ' + url);
+    return false;
+  }
+  log('opened ' + url);
+  return true;
+}
+
+// Keep tapping until the target is gone: the page hides it after the last hit.
+// The page, not our own count, says when we are done: a tap can be held back
+// (GAP delays a script's touches while a finger is on its bar) or miss.
+function tapTarget(maxTaps) {
+  for (var i = 1; i &lt;= maxTaps &amp;&amp; running; i++) {
+    var found = look('target');
+    if (!found.length) return true;
+    tap(found[0].cx, found[0].cy, 400);
+    log('tap ' + i + ' at ' + found[0].cx + ',' + found[0].cy);
+  }
+  return look('target').length === 0;
+}
+
+function sendMessage(text, retry) {
+  var input = waitFor('input', 3000);
+  if (!input) { log('text box not found'); return false; }
+  tap(input.cx, input.cy, 800);           // focus it; the keyboard may slide up
+  if (retry) {
+    // The first try may have typed already: empty the box before typing again.
+    keycode('MOVE_END', 50);
+    for (var k = 0; k &lt; text.length * 2; k++) keycode('DEL', 20);
+  }
+  typing(text, 300);
+  log('typed "' + text + '"');
+
+  var send = waitFor('send', 3000);       // look again: the layout may have moved
+  if (!send) { log('Send button not found'); return false; }
+  tap(send.cx, send.cy, 800);
+  log('pressed Send');
+  return true;
+}
+
+function slideToEnd() {
+  var knob = waitFor('knob', 3000);
+  if (!knob) { log('slider not found'); return false; }
+  // The track ends as far from the right edge as it starts from the left, and
+  // the page stops the knob there, so aiming a little past the end is fine.
+  var endX = getScreenSize().width - knob.x;
+  tapDown(knob.cx, knob.cy, 50);
+  for (var step = 1; step &lt;= 20; step++) {
+    moveTo(Math.round(knob.cx + (endX - knob.cx) * step / 20), knob.cy, 15, true);
+  }
+  tapUp(endX, knob.cy, 600);
+  log('slid the knob to x=' + endX);
+  return true;
+}
+
+function start(settings = {}) {
+  var url = settings.url || 'https://www.gapapp.app/examples/gap-playground/web/playground.html';
+  var message = settings.message || 'Hello from GAP';
+
+  running = true;
+  showBanner('Playground: starting', 2000);
+  if (settings.openPage !== false) openPage(url);
+
+  log('waiting for the page');
+  if (!waitFor('target', 20000)) {
+    log('no target on screen - is the playground page open?');
+    running = false;
+    return;
+  }
+  sleep(1000);   // give the page a moment to settle before the first touch
+
+  var steps = [
+    ['Tapping the target', function () { return tapTarget(15); }],
+    ['Typing a message',   function (retry) { return sendMessage(message, retry); }],
+    ['Sliding to finish',  function () { return slideToEnd(); }]
+  ];
+  for (var i = 0; i &lt; steps.length &amp;&amp; running; i++) {
+    showBanner(steps[i][0], 3000);
+    // Do the task, then check the page agrees: one more try if it doesn't.
+    var done = 0;
+    for (var attempt = 1; attempt &lt;= 2 &amp;&amp; running; attempt++) {
+      steps[i][1](attempt &gt; 1);
+      sleep(500);
+      done = doneCount();
+      if (done &gt; i) break;
+      if (attempt &lt; 2) log(steps[i][0].toLowerCase() + ' did not register, trying again');
+    }
+    log('tasks done: ' + done + ' of 3');
+    if (done &lt;= i) break;
+  }
+
+  var done = doneCount();
+  log(done === 3 ? 'all three tasks done' : 'finished with ' + done + ' of 3 done');
+  showBanner(done === 3 ? 'Playground: all done' : 'Playground: ' + done + ' of 3', 4000);
+  running = false;
+}
+
+function stop() {
+  running = false;
+}</pre></div>
+</section>
+
+<section class="qs-step" id="lessons" aria-labelledby="lessons-t">
+  <h2 id="lessons-t"><span class="stepnum">6</span>What testing taught</h2>
+  <ul class="plain">
+    <li><b>A tap can go missing.</b> The first version counted its own taps and stopped at 4 of 5: one tap never registered. GAP also holds a script's touches back while a finger is on its bar (the log says <i>input held for the user</i>). So this version taps until the page says the task is done, and when a task doesn't register it tries once more, emptying the text box first so the message isn't typed twice.</li>
+    <li><b>Look again after acting.</b> Focusing a text box can bring up a keyboard and move things, so the script finds Send after typing, not before.</li>
+    <li><b>Give the page a moment.</b> The script waits a second after the page appears before its first touch.</li>
+    <li><b>GAP ignores taps on its own bar that come from a script</b>, so a script can't press its own Play or Stop by accident.</li>
+  </ul>
+</section>
+
+  </div>
+</div>
+</main>
+
+<footer class="page">
+  <p>General Automation Platform · Android 7.0+</p>
+  <nav aria-label="Project links">
+    <ul>
+      <li><a href="./">Home</a></li>
+      <li><a href="quickstart.html">Quick start</a></li>
+      <li><a href="api.html">API reference</a></li>
+      <li><a href="https://discord.gg/NTSAacRCv" target="_blank" rel="noopener">Support on Discord</a></li>
+    </ul>
+  </nav>
+</footer>
+
+</body>
+</html>

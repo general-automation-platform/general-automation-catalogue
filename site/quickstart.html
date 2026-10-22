@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GAP Quick Start — your first script</title>
+<meta name="description" content="Write your first GAP script: teach it to recognise a button on the screen and tap it, from an empty folder to a working run in about fifteen minutes.">
+<meta property="og:title" content="GAP Quick Start">
+<meta property="og:description" content="From an empty folder to a script that finds a button on the screen and taps it.">
+<meta property="og:image" content="https://www.gapapp.app/assets/icon-180.png">
+<meta name="theme-color" content="#0b0e12">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/icon-64.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("gap-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<link rel="preload" href="assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/gap.css">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body class="gap">
+<a class="skip btn primary" href="#main">Skip to content</a>
+
+<header class="page top">
+  <a class="brand" href="./">
+    <img src="assets/GAP_mark_mono.png" alt="">
+    <span class="name">General Automation <span>Platform</span></span>
+  </a>
+  <nav aria-label="Pages"><ul class="navlinks">
+    <li><a href="./">Home</a></li>
+    <li><a href="quickstart.html" aria-current="page">Quick start</a></li>
+    <li><a href="api.html">API</a></li>
+    <li><a href="playground.html">Playground</a></li>
+    <li><a href="companion/">Companion</a></li>
+  </ul></nav>
+  <button type="button" class="theme-btn" data-theme-toggle>Light theme</button>
+</header>
+
+<main id="main" class="page">
+
+<section class="qs-hero" aria-labelledby="qs-title">
+  <p class="fact"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#timer"/></svg> Quick start · about 15 minutes</p>
+  <h1 id="qs-title">Your first script:<br><span>find it, then tap it.</span></h1>
+  <p class="intro">You will teach GAP to recognise one thing on the screen — a button — and tap it whenever it shows up. It is the pattern almost every automation is built from: <b>look, decide, act, repeat</b>.</p>
+  <ul class="facts">
+    <li class="fact">Two small files and one picture</li>
+    <li class="fact">Plain JavaScript</li>
+    <li class="fact">No build step</li>
+  </ul>
+</section>
+
+<div class="qs-layout">
+  <nav class="toc" aria-label="Steps">
+    <p>Steps</p>
+    <ol>
+      <li><a href="#before">Before you start</a></li>
+      <li><a href="#folder">Make the folder</a></li>
+      <li><a href="#capture">Take a screenshot</a></li>
+      <li><a href="#crop">Crop the target</a></li>
+      <li><a href="#logic">Write index.js</a></li>
+      <li><a href="#settings">Write index.html</a></li>
+      <li><a href="#copy">Copy it to the device</a></li>
+      <li><a href="#run">Run it</a></li>
+      <li><a href="#tune">Tune and fix</a></li>
+      <li><a href="#next">Where to go next</a></li>
+    </ol>
+  </nav>
+
+  <div>
+
+<section class="qs-step" id="before" aria-labelledby="before-t">
+  <h2 id="before-t"><span class="stepnum">1</span>Before you start</h2>
+  <ul class="plain">
+    <li><b>GAP installed, with Online at the top of its main screen.</b> If not, follow <a href="./#guide">the setup guide</a> first — it takes about ten minutes.</li>
+    <li><b>The starter tool's folder</b> on your computer (<b>GeneralAutomationPlatform-Starter</b>). This guide uses the copy of Google's <code>adb</code> the tool downloads into it on its first run, to take a screenshot and copy files. If you have never run the tool, run it once first. If <code>adb</code> already works in your terminal (from Android Studio, say), the tool uses that one and downloads nothing, so type plain <code>adb</code> wherever this page shows a path to it. No computer? See the note in step 3 and step 7.</li>
+    <li><b>Any image editor that can crop</b> — Paint or Photos on Windows, Preview on a Mac, GIMP anywhere.</li>
+  </ul>
+  <p>The example target is the <b>Start</b> button on the stopwatch in the device's <b>Clock</b> app, because nearly every Android device has one. Any button, icon or label works the same way — swap in your own as you go.</p>
+  <div class="tabs seg" role="group" aria-label="Your computer">
+    <button type="button" data-os="win">Windows</button>
+    <button type="button" data-os="mac">Mac</button>
+    <button type="button" data-os="linux">Linux</button>
+  </div>
+  <p class="more" style="margin-top:8px">Commands on this page follow the computer you pick.</p>
+</section>
+
+<section class="qs-step" id="folder" aria-labelledby="folder-t">
+  <h2 id="folder-t"><span class="stepnum">2</span>Make the folder</h2>
+  <p>A GAP script is just a folder. Make one called <b>find-and-tap</b> inside the starter tool's folder, with an <b>images</b> folder inside it. By the end it holds three things:</p>
+  <div class="file">
+    <div class="term-bar"><span class="name">find-and-tap/</span></div>
+<pre class="short">find-and-tap/
+├── index.js          <span class="c-com">what the script does — step 5</span>
+├── index.html        <span class="c-com">its settings page — step 6</span>
+└── images/
+    └── target.png    <span class="c-com">the picture it looks for — steps 3 and 4</span></pre>
+  </div>
+  <p>The folder's name is the name the script gets in GAP's Library.</p>
+</section>
+
+<section class="qs-step" id="capture" aria-labelledby="capture-t">
+  <h2 id="capture-t"><span class="stepnum">3</span>Take a screenshot</h2>
+  <p>On the device, open <b>Clock → Stopwatch</b> so the Start button is showing. Then open a terminal in the starter tool's folder<span data-for="win"> (in File Explorer, click the address bar, type <code>cmd</code> and press Enter)</span><span data-for="mac"> (in Terminal, type <code>cd</code> and a space, drag the folder onto the window, and press Return)</span><span data-for="linux"> (<code>cd</code> into it)</span>, and run these two lines:</p>
+  <div class="file">
+    <div class="term-bar"><span class="name">Terminal</span><span class="acts"><button type="button" data-copy>Copy</button></span></div>
+<pre class="short" data-cmd="capture"></pre>
+  </div>
+  <p>That leaves <b>screen.png</b> in the folder: a picture of the whole screen, at exactly the size GAP sees it.</p>
+  <div class="hint"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#sparkle"/></svg><p><strong>No computer?</strong> Take an ordinary screenshot on the device (usually Power + Volume down). It is saved at the screen's full size, which is what you need. Crop it on the device in the next step.</p></div>
+  <div class="hint"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#sparkle"/></svg><p><strong>adb says “no devices” or “more than one device”?</strong> Run the starter tool once and pick your device, so adb is connected to it. With several, put <code>-s</code> and the address the tool lists right after <code>adb</code>, for example <code>adb -s 127.0.0.1:16384 shell …</code>.</p></div>
+</section>
+
+<section class="qs-step" id="crop" aria-labelledby="crop-t">
+  <h2 id="crop-t"><span class="stepnum">4</span>Crop the target</h2>
+  <p>Open screen.png in your image editor, crop it tightly around the Start button, and save the result as <b>images/target.png</b> in your script folder.</p>
+  <div class="shot">
+    <figure>
+      <div class="phone" aria-hidden="true"><span class="time">00:00.00</span><span class="crop"></span><span class="btn-start"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#play"/></svg></span></div>
+      <figcaption>screen.png — crop along the dashed line.</figcaption>
+    </figure>
+    <figure>
+      <div class="target-tile" aria-hidden="true"><span><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#play"/></svg></span></div>
+      <figcaption>images/target.png — just the button, nothing that changes.</figcaption>
+    </figure>
+  </div>
+  <ul class="plain">
+    <li><b>Crop, never resize.</b> The picture has to be pixel-for-pixel what GAP sees. Shrinking or zooming it breaks the match.</li>
+    <li><b>Leave out anything that changes</b>, like the running time beside a button. Only the part that always looks the same.</li>
+    <li><b>Small but distinctive.</b> A smaller picture matches faster, but it must not also look like something else on the screen.</li>
+    <li><b>Same device.</b> Pictures taken on one screen size won't line up on another, so capture on the device you'll run on.</li>
+  </ul>
+</section>
+
+<section class="qs-step" id="logic" aria-labelledby="logic-t">
+  <h2 id="logic-t"><span class="stepnum">5</span>Write index.js</h2>
+  <p>This is the script itself. Save it as <b>find-and-tap/index.js</b>:</p>
+  <div class="file">
+    <div class="term-bar"><span class="name">index.js</span><span class="acts"><button type="button" data-copy>Copy</button><a href="examples/find-and-tap/index.js" download>Download</a></span></div>
+<pre>// Find and tap: looks for images/target.png on the screen and taps it.
+// The floating bar's Play button calls start(settings); Stop calls stop().
+
+var running = false;
+var run = 0;               // which start() is current, if Play is pressed again
+
+function start(settings = {}) {
+  const threshold = settings.threshold ?? 0.85;
+  const maxTaps = settings.maxTaps ?? 5;
+
+  // The picture to look for, from this script's own folder.
+  const target = openImage(getScriptPath() + '/images/target.png');
+  if (target === 0) {
+    console.log('images/target.png is missing');
+    return;
+  }
+  const { width, height } = getImageSize(target);
+
+  running = true;
+  const me = ++run;
+  let taps = 0;
+  console.log(`looking for a ${width}x${height} target, threshold ${threshold}`);
+
+  try {
+    while (running &amp;&amp; me === run &amp;&amp; taps &lt; maxTaps) {
+      const screen = getScreenshot();
+      if (screen === 0) {                          // the engine is not ready
+        sleep(1000);
+        continue;
+      }
+
+      const hit = findImage(screen, target);       // best match: {x, y, score}
+      releaseImage(screen);                        // screenshots are native memory
+
+      if (hit.score &gt;= threshold) {
+        // x, y is the match's top-left corner, so aim for its middle.
+        const x = Math.round(hit.x + width / 2);
+        const y = Math.round(hit.y + height / 2);
+        tap(x, y, 300);
+        taps++;
+        console.log(`found (score ${hit.score.toFixed(2)}), ` +
+                    `tapped ${x},${y} [${taps}/${maxTaps}]`);
+        sleep(1500);                               // let the app react
+      } else {
+        console.log(`not on screen (best ${hit.score.toFixed(2)})`);
+        sleep(1000);
+      }
+    }
+  } finally {
+    // Runs however the loop ends, even when Stop cuts it short.
+    releaseImage(target);
+    if (me === run) running = false;
+  }
+  console.log('done');
+}
+
+// Runs while start() is still looping, so it only has to clear the flag.
+function stop() {
+  running = false;
+}</pre>
+  </div>
+  <ul class="explain">
+    <li><code>start()</code> and <code>stop()</code> are the two names this script's settings page calls (step 6): Play calls one, Stop and ✕ call the other.</li>
+    <li><code>getScreenshot()</code> takes a fresh picture of the screen, usually in about a millisecond.</li>
+    <li><code>findImage()</code> slides your picture over the screen and returns the best spot it found, with a <b>score</b> for how alike they are: 1 is a perfect match.</li>
+    <li><code>tap(x, y, 300)</code> taps there, then waits 300 ms for the app to react.</li>
+    <li><code>releaseImage()</code> frees each picture once you're done with it. A long run that skips this runs out of memory.</li>
+    <li>The <code>running</code> flag is how <code>stop()</code> ends the loop. It runs while <code>start()</code> is still going, so all it needs to do is clear the flag. <code>run</code> makes sure only the newest <code>start()</code> keeps looping, if Play is pressed while a run is going.</li>
+    <li>The <code>finally</code> block frees the target picture however the loop ends.</li>
+  </ul>
+</section>
+
+<section class="qs-step" id="settings" aria-labelledby="settings-t">
+  <h2 id="settings-t"><span class="stepnum">6</span>Write index.html</h2>
+  <p>A script's settings page is an ordinary web page that GAP shows when you press <b>⚙</b> on the floating bar. This one lets you change the threshold and the number of taps without editing code. Strictly it is optional, but it is also what connects the floating bar's buttons to <code>start()</code> and <code>stop()</code>, so a script without one cannot be started from Play. Save it as <b>find-and-tap/index.html</b>:</p>
+  <div class="file">
+    <div class="term-bar"><span class="name">index.html</span><span class="acts"><button type="button" data-copy>Copy</button><a href="examples/find-and-tap/index.html" download>Download</a></span></div>
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;meta charset="utf-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+&lt;title&gt;Find and tap&lt;/title&gt;
+&lt;style&gt;
+  body  { margin: 0; padding: 16px; font: 14px/1.5 sans-serif;
+          background: #0d1218; color: #eff2f6; }
+  h1    { font-size: 16px; margin: 0 0 16px; }
+  label { display: flex; justify-content: space-between; align-items: center;
+          margin: 0 0 14px; }
+  input { width: 90px; padding: 6px 8px; font: inherit; color: inherit;
+          background: #171d25; border: 1px solid #313942; border-radius: 8px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Find and tap&lt;/h1&gt;
+&lt;label&gt;Match threshold
+  &lt;input id="threshold" type="number" min="0.5" max="1" step="0.01"
+         value="0.85"&gt;&lt;/label&gt;
+&lt;label&gt;Taps before stopping
+  &lt;input id="maxTaps" type="number" min="1" value="5"&gt;&lt;/label&gt;
+
+&lt;script&gt;
+  var KEY = 'find-and-tap-settings';
+  var IDS = ['threshold', 'maxTaps'];
+
+  // Put back what was saved last time.
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+    IDS.forEach(function (id) {
+      if (id in saved) document.getElementById(id).value = saved[id];
+    });
+  } catch (e) {}
+
+  // Read the form, remember it, and hand it to start().
+  function settings() {
+    var s = {};
+    IDS.forEach(function (id) {
+      s[id] = parseFloat(document.getElementById(id).value);
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+    return s;
+  }
+
+  // GAP calls this when a button on the floating bar is pressed.
+  function onEvent(type) {
+    if (type === 'OnPlayClick') {
+      var code = 'start(' + JSON.stringify(settings()) + ');';
+      JavaScriptInterface.runScript(code);
+      JavaScriptInterface.showMenu();   // closes this panel, so the app is in view
+    }
+    if (type === 'OnPauseClick' || type === 'OnCloseClick') {
+      JavaScriptInterface.runScript('stop();');
+    }
+  }
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+  </div>
+  <ul class="explain">
+    <li>GAP calls <code>onEvent()</code> when a run starts or ends: <code>OnPlayClick</code> is Play starting a run, <code>OnPauseClick</code> is Stop (■), despite its name, and <code>OnCloseClick</code> is ✕. Pausing and resuming need nothing from the page: GAP freezes the script itself.</li>
+    <li><code>JavaScriptInterface.runScript()</code> runs a line of code in index.js — here, <code>start({...})</code> with the form's values. <code>showMenu()</code> then closes the settings panel, so it isn't covering the app the script taps.</li>
+    <li><code>localStorage</code> remembers the settings between runs, like on any web page.</li>
+  </ul>
+</section>
+
+<section class="qs-step" id="copy" aria-labelledby="copy-t">
+  <h2 id="copy-t"><span class="stepnum">7</span>Copy it to the device</h2>
+  <p>GAP finds scripts in <b>Download/GeneralAutomationPlatform/scripts/</b> on the device. From the same terminal:</p>
+  <div class="file">
+    <div class="term-bar"><span class="name">Terminal</span><span class="acts"><button type="button" data-copy>Copy</button></span></div>
+<pre class="short" data-cmd="push"></pre>
+  </div>
+  <p>The first line makes sure the scripts folder exists; without it, adb would copy the files loose into <code>scripts/</code>. The device now has <code>Download/GeneralAutomationPlatform/scripts/find-and-tap/index.js</code>. Run the same line again whenever you change a file.</p>
+  <div class="hint"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#sparkle"/></svg><p><strong>No computer?</strong> Use the device's Files app. Put the whole <b>find-and-tap</b> folder inside <b>Download → GeneralAutomationPlatform → scripts</b>.</p></div>
+</section>
+
+<section class="qs-step" id="run" aria-labelledby="run-t">
+  <h2 id="run-t"><span class="stepnum">8</span>Run it</h2>
+  <ol class="steps" style="margin-bottom:16px">
+    <li><div>Open <b>GAP</b>. On the <b>Library</b> tab, <b>find-and-tap</b> is listed as a script that is on this device. Not there? Leave the Library and come back to it: GAP looks again each time.</div></li>
+    <li><div>Tap the <b>▶</b> circle on its card. The floating bar appears: <b>▶</b> Play, <b>■</b> Stop, <b>⚙</b> settings and <b>✕</b> close.</div></li>
+    <li><div>Switch to <b>Clock → Stopwatch</b>. To watch the log as it runs, start the command under these steps in your terminal first.</div></li>
+    <li><div>Press <b>▶</b> on the bar. The stopwatch starts by itself. Tap its Pause yourself, and the script starts it again. After five starts, its own first one included, the script stops.</div></li>
+  </ol>
+  <p>The log shows each look and its score. It goes to <code>Download/GeneralAutomationPlatform/logs/</code> on the device, and to Android's own log, which this shows live (press Ctrl+C to stop watching):</p>
+  <div class="file">
+    <div class="term-bar"><span class="name">Terminal</span><span class="acts"><button type="button" data-copy>Copy</button></span></div>
+<pre class="short" data-cmd="log"></pre>
+  </div>
+  <div class="file">
+    <div class="term-bar"><span class="name">Log</span></div>
+<pre class="short">looking for a 96x96 target, threshold 0.85
+found (score 0.98), tapped 270,812 [1/5]
+not on screen (best 0.46)
+not on screen (best 0.45)
+found (score 0.97), tapped 270,812 [2/5]</pre>
+  </div>
+  <p>That's a working script. Press <b>▶</b> again to pause it wherever it is, and <b>■</b> to end it.</p>
+</section>
+
+<section class="qs-step" id="tune" aria-labelledby="tune-t">
+  <h2 id="tune-t"><span class="stepnum">9</span>Tune and fix</h2>
+  <p>The score is your main tool. A true match usually scores above <b>0.9</b>. Something merely similar lands around 0.5–0.8. Set the threshold between the two: high enough that the wrong things never pass, low enough that the right one always does.</p>
+  <div class="table-wrap">
+    <table class="trouble">
+      <thead><tr><th scope="col">What you see</th><th scope="col">What to do</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">The best score never gets above about 0.7</th><td>The picture doesn't match what GAP sees. Take a new screenshot on this device, crop without resizing, and leave out anything that changes.</td></tr>
+        <tr><th scope="row">It taps things that aren't the target</th><td>Raise the threshold in the settings (⚙), or crop a more distinctive picture.</td></tr>
+        <tr><th scope="row">It can't see a target that's on screen</th><td>Something is covering it in the script's view. On some devices an open settings panel shows up in screenshots as a black area, and the floating bar can sit on the target too. Close the settings panel, or drag the bar aside.</td></tr>
+        <tr><th scope="row">The log says images/target.png is missing</th><td>Check the folder: the <b>images</b> folder sits next to index.js, and holds a file named exactly <code>target.png</code>.</td></tr>
+        <tr><th scope="row">The card says there is no index.js</th><td>The folder has no file named exactly <code>index.js</code>. Check the spelling, and on Windows check it wasn't saved as <code>index.js.txt</code> (turn on <b>File name extensions</b> in File Explorer's View menu to see).</td></tr>
+        <tr><th scope="row">Your changes don't take effect</th><td>Copy the folder over again, close the floating bar with ✕, and start it again from the Library so GAP loads the new files.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="qs-step" id="next" aria-labelledby="next-t">
+  <h2 id="next-t"><span class="stepnum">10</span>Where to go next</h2>
+  <p>Everything else builds on the same loop. For a bigger, tested example — tapping a moving target, typing, and dragging a slider on a web page — see the <a href="playground.html">Playground</a>. Here are the calls you'll reach for first; the <a href="api.html">API reference</a> has all of them. Every one is a global, so you call <code>tap()</code>, not <code>gap.tap()</code>.</p>
+  <div class="table-wrap">
+    <table class="api">
+      <tbody>
+        <tr class="grp"><td colspan="2">Looking</td></tr>
+        <tr><td>getScreenshot()</td><td>The whole screen as an image.</td></tr>
+        <tr><td>getScreenshotModify(x, y, w, h, rw, rh, q)</td><td>Just one region, optionally scaled. Faster when you know where to look. Pass <code>0, 0</code> for no resize and <code>100</code> for no compression.</td></tr>
+        <tr><td>findImage(screen, picture)</td><td>The best match: <code>{x, y, score}</code>, where x, y is the top-left corner.</td></tr>
+        <tr><td>findImages(screen, picture, minScore, max, noOverlap)</td><td>Every match above a score, for when there are several.</td></tr>
+        <tr><td>getColor(x, y)</td><td>The colour of one pixel: <code>{r, g, b, a}</code>. Handy for "is this light on?".</td></tr>
+        <tr><td>openImage(path) · saveImage(img, path)</td><td>Load a picture, or save one. Saving a screenshot is a quick way to see what the script saw.</td></tr>
+        <tr class="grp"><td colspan="2">Acting</td></tr>
+        <tr><td>tap(x, y, wait, holdMs)</td><td>Tap, with an optional long press.</td></tr>
+        <tr><td>swipe(x1, y1, x2, y2, wait)</td><td>A swipe from one point to another.</td></tr>
+        <tr><td>tapDown · moveTo · tapUp</td><td>A drag you control step by step.</td></tr>
+        <tr><td>typing(text) · keycode('BACK')</td><td>Type text into the focused field; press Home, Back and other keys.</td></tr>
+        <tr><td>launchApp(package) · foregroundApp()</td><td>Open an app, or check which one is in front.</td></tr>
+        <tr class="grp"><td colspan="2">Everything else</td></tr>
+        <tr><td>sleep(ms)</td><td>Wait. Pause and Stop take effect even while it's waiting.</td></tr>
+        <tr><td>console.log(…)</td><td>Write to the log file in <code>GeneralAutomationPlatform/logs/</code> and to Android's log (tag <code>gap.script</code>).</td></tr>
+        <tr><td>getScriptPath()</td><td>This script's own folder, for its pictures and files.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:20px">Ideas for what to try next:</p>
+  <ul class="plain">
+    <li>Look for several pictures in turn, and act differently on each: a tiny state machine.</li>
+    <li>Use <code>getScreenshotModify</code> to look in just one corner of the screen, and watch the loop speed up.</li>
+    <li>Add a <b>floating-bar.json</b> next to index.js to give the bar your script's colours.</li>
+    <li>Share it: publish a <b>source</b> — one JSON file at a URL that lists your scripts — and anyone who adds it under <b>Sources</b> gets your script and its updates.</li>
+  </ul>
+  <p>Stuck, or built something neat? Come and say so in <b>#gap</b> on <a href="https://discord.gg/NTSAacRCv" target="_blank" rel="noopener">Discord</a>.</p>
+</section>
+
+  </div>
+</div>
+</main>
+
+<footer class="page">
+  <p>General Automation Platform · Android 7.0+</p>
+  <nav aria-label="Project links">
+    <ul>
+      <li><a href="./">Home</a></li>
+      <li><a href="./#guide">Set up GAP</a></li>
+      <li><a href="api.html">API reference</a></li>
+      <li><a href="playground.html">Playground</a></li>
+      <li><a href="companion/">GAP Companion</a></li>
+      <li><a href="https://discord.gg/NTSAacRCv" target="_blank" rel="noopener">Support on Discord</a></li>
+    </ul>
+  </nav>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var PREFIX = { win: '.\\adb\\windows\\adb.exe', mac: './adb/darwin/adb', linux: './adb/linux/adb' };
+  var CMDS = {
+    capture: ['shell screencap -p /sdcard/screen.png', 'pull /sdcard/screen.png'],
+    push: ['shell mkdir -p /sdcard/Download/GeneralAutomationPlatform/scripts', 'push find-and-tap /sdcard/Download/GeneralAutomationPlatform/scripts/'],
+    log: ['logcat -s gap.script']
+  };
+  var os = 'win';
+  try {
+    var saved = localStorage.getItem('gap-qs-os');
+    if (saved && PREFIX[saved]) os = saved;
+    else if (/Mac/.test(navigator.platform || '')) os = 'mac';
+    else if (/Linux/.test(navigator.platform || '') && !/Android/.test(navigator.userAgent || '')) os = 'linux';
+  } catch (e) {}
+
+  function render() {
+    document.querySelectorAll('[data-cmd]').forEach(function (el) {
+      el.textContent = CMDS[el.dataset.cmd].map(function (c) { return PREFIX[os] + ' ' + c; }).join('\n');
+    });
+    document.querySelectorAll('[data-os]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.os === os)); });
+    document.querySelectorAll('[data-for]').forEach(function (el) { el.hidden = el.dataset.for !== os; });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-os]');
+    if (b) { os = b.dataset.os; try { localStorage.setItem('gap-qs-os', os); } catch (err) {} render(); return; }
+  });
+  render();
+})();
+</script>
+</body>
+</html>

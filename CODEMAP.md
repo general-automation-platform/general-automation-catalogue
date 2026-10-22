@@ -10,7 +10,19 @@ general-automation-catalogue/
 │       ├── metadata.json    the entry: Name, Version, Date, Hash, File, Message (notes), MinHost, Versions (older builds still offered)
 │       ├── CHANGELOG.md     what shipped in each release, newest first
 │       └── TsumTsum-*.zip   the builds metadata.json names
-├── site/                    the getting-started page (index.html, assets/), served at www.gapapp.app
+├── site/                    the website, served at www.gapapp.app
+│   ├── index.html           home: what GAP does, GAP Companion, the setup guide, downloads
+│   ├── quickstart.html      first script, step by step (examples/find-and-tap/)
+│   ├── api.html             every script API, from ../general-automation-app/docs/API.md
+│   ├── playground.html      the tested example (examples/gap-playground/)
+│   ├── visual-check.html    the tested visual-check example (examples/visual-check/)
+│   ├── companion/           GAP Companion: overview, pricing, privacy, terms, refunds, support,
+│   │                        delete-account (Google and Stripe link these), shots/ (real screens,
+│   │                        Dark and Light; how they were taken: gap-companion site/README.md)
+│   ├── examples/            script folders people copy into GAP's scripts/
+│   └── assets/              site.css + site.js (the website layer), companion.css (companion/ pages); tokens.css, gap.css,
+│                            icons.svg and fonts/ are copied from ../designs/gap-design-kit-v2
+│                            (Design System v2): recopy, never edit
 ├── build-official.sh/.ps1   folds every metadata.json into official.json
 ├── notify-discord.sh        posts each script whose Version changed to Discord
 ├── notify-discord-app.sh    posts a published GAP app release's changelog to Discord

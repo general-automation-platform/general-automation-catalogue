@@ -1,0 +1,96 @@
+/* GAP Companion pages (companion/), on top of site.css. Class names start with c- so they never
+   meet the kit's own (.screen, .note, .phone).
+
+   Screens: real captures of the app and dashboard (companion/shots/, how they were taken: the
+   gap-companion repo's site/README.md). Each .c-themed holds a Dark (.d) and a Light (.l) image
+   and shows the one matching the page's data-theme. A .c-seq cross-fades its frames (--n frames
+   over --T); hover pauses it, and with reduced motion it shows its .still frame. */
+
+/* ---------- Theme-matched screens ----------------------------------------- */
+.c-themed img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+[data-theme="light"] .c-themed .d, [data-theme="dark"] .c-themed .l { display: none; }
+
+/* ---------- Phone and browser frames --------------------------------------- */
+.c-phone { width: min(100%, 300px); margin: 0 auto; background: #05070a; border-radius: 34px; padding: 8px;
+  border: 1px solid #2a313b; box-shadow: var(--shadow-float); }
+.c-phone .c-screen { position: relative; aspect-ratio: 540 / 932; border-radius: 27px; overflow: hidden; background: var(--bg); }
+.c-browser { border-radius: var(--radius-card); overflow: hidden; background: var(--card-static);
+  border: 1px solid var(--card-static-edge); box-shadow: var(--shadow-card); }
+.c-chrome { display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: var(--inset); border-bottom: 1px solid var(--card-static-edge); }
+.c-lights { display: flex; gap: 6px; }
+.c-lights i { width: 10px; height: 10px; border-radius: 50%; background: var(--card-static-edge); }
+.c-url { flex: 1; max-width: 420px; margin: 0 auto; background: var(--bg); border-radius: var(--radius-pill); padding: 4px 14px;
+  font-size: 12px; color: var(--ink-muted); text-align: center; }
+.c-chrome .sp { width: 54px; }
+.c-view { position: relative; }
+.c-view.tall { aspect-ratio: 1440 / 1000; }
+.c-view.wide { aspect-ratio: 1440 / 900; }
+.c-caption { font-size: 13px; color: var(--ink-muted); margin-top: 12px; text-align: center; }
+
+/* ---------- Sequences ------------------------------------------------------ */
+.c-seq { --T: 12s; position: absolute; inset: 0; }
+/* Frame i shows for its 1/n of the loop and fades out as the next one fades in. */
+.c-seq > .fr { position: absolute; inset: 0; opacity: 0; animation: var(--T) linear infinite;
+  animation-delay: calc((var(--i) / var(--n) - 1) * var(--T)); }
+.c-seq:hover > .fr { animation-play-state: paused; }
+.c-seq.n4 > .fr { animation-name: c-seq4; }
+.c-seq.n6 > .fr { animation-name: c-seq6; }
+@keyframes c-seq4 { 0% { opacity: 0; } 3%, 25% { opacity: 1; } 28%, 100% { opacity: 0; } }
+@keyframes c-seq6 { 0% { opacity: 0; } 2%, 16.7% { opacity: 1; } 18.7%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .c-seq > .fr { animation: none; opacity: 0; }
+  .c-seq > .fr.still { opacity: 1; }
+}
+
+/* ---------- Page parts ----------------------------------------------------- */
+.c-sub { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 18px 0 0; list-style: none; }
+.c-sub a { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: var(--radius-pill);
+  background: var(--inset); color: var(--ink); font-size: 13px; font-weight: 600; }
+.c-sub a[aria-current="page"] { background: var(--selected); color: var(--on-selected); }
+.c-sub a:hover { text-decoration: none; }
+.c-split { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 56px; align-items: center; margin-top: 28px; }
+@media (max-width: 860px) { .c-split { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
+.c-showcase { margin-top: 28px; }
+.c-steps { list-style: none; counter-reset: s; display: grid; gap: 18px; margin-top: 24px; }
+.c-steps li { counter-increment: s; position: relative; padding-left: 50px; font-size: 15px; line-height: 1.55; }
+.c-steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--tap-soft); color: var(--tap); display: grid; place-items: center; font: 700 15px var(--font-display); }
+.c-steps b { display: block; margin-bottom: 2px; }
+.c-steps span { color: var(--ink-muted); }
+
+/* ---------- Plans ---------------------------------------------------------- */
+.c-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-5); max-width: 760px; margin-top: 28px; }
+.c-plan { display: flex; flex-direction: column; }
+.c-plan.hot { box-shadow: inset 0 0 0 2px var(--tap), var(--shadow-card); }
+.c-price { font: 800 44px/1 var(--font-display); letter-spacing: -.02em; margin: 6px 0 2px; }
+.c-price small { font: 500 15px var(--font-sans); color: var(--ink-muted); letter-spacing: 0; }
+.c-plan .ticks { margin: 8px 0 18px; flex: 1; }
+.c-plan .btn { width: 100%; justify-content: center; }
+
+/* ---------- Questions ------------------------------------------------------ */
+.c-faq { display: grid; gap: 10px; margin-top: 22px; max-width: 820px; }
+.c-faq details { border-radius: 14px; background: var(--card-static); border: 1px solid var(--card-static-edge); padding: 14px 16px; }
+.c-faq summary { cursor: pointer; font-weight: 700; }
+.c-faq details p { margin-top: 8px; color: var(--ink-muted); line-height: 1.6; }
+
+/* ---------- Policies (privacy, terms, refunds, support, delete account) --- */
+.c-legal { max-width: 760px; padding: 48px 0 8px; }
+.c-legal h1 { font-size: clamp(30px, 4.4vw, 44px); }
+.c-legal .meta { color: var(--ink-muted); font-size: 14px; margin-bottom: 18px; }
+.c-legal .c-note { border-radius: 14px; padding: 12px 14px; background: var(--warning-band); margin: 0 0 18px; }
+.c-legal h2 { font-size: 22px; margin: 34px 0 10px; }
+.c-legal h3 { margin: 20px 0 6px; }
+.c-legal p, .c-legal li, .c-legal dd { font-size: 15px; line-height: 1.7; color: var(--ink-muted); }
+.c-legal p { margin: 0 0 12px; }
+.c-legal ul, .c-legal ol { margin: 0 0 14px 1.3em; display: flex; flex-direction: column; gap: 6px; }
+.c-legal dl { margin: 0 0 14px; display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; }
+.c-legal dt { font-weight: 700; color: var(--ink); font-size: 15px; line-height: 1.7; }
+.c-legal dd { margin: 0; }
+.c-legal table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 6px 0 16px; }
+.c-legal th, .c-legal td { text-align: left; padding: 9px 10px; border-top: 1px solid var(--divider); vertical-align: top; color: var(--ink-muted); }
+.c-legal th { color: var(--ink); }
+@media (max-width: 560px) { .c-legal dl { grid-template-columns: 1fr; gap: 2px; } .c-legal dd { margin-bottom: 8px; } }
+
+/* ---------- Footer legal line ---------------------------------------------- */
+.c-legalline { flex-basis: 100%; font-size: 13px; color: var(--ink-muted); }
+.c-legalline a { font-weight: 600; }
